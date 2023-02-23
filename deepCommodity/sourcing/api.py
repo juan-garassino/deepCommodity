@@ -276,3 +276,66 @@ def get_technical_indicators(symbol, interval, api_key):
     df.to_csv(f'{symbol}_technical_indicators.csv')
 
     return df
+
+def get_historical_data_to_csv(crypto_ids, start_date, end_date, csv_filename):
+    """
+    Retrieves historical hourly data for given cryptocurrencies from CoinGecko API
+    and saves it to a CSV file.
+
+    crypto_ids: list of strings, the IDs of the cryptocurrencies on CoinGecko e.g. ['bitcoin', 'ethereum']
+    start_date: string, the start date of the historical data in format 'dd-mm-yyyy'
+    end_date: string, the end date of the historical data in format 'dd-mm-yyyy'
+    csv_filename: string, the filename to save the CSV data to
+
+    Returns: pandas DataFrame
+    """
+
+    # Convert date strings to datetime objects
+    start_date = datetime.strptime(start_date, '%d-%m-%Y').strftime('%s')
+    end_date = datetime.strptime(end_date, '%d-%m-%Y').strftime('%s')
+
+    # Create empty DataFrame to store data
+    data_df = pd.DataFrame()
+
+    # Loop through each crypto ID and make API request to CoinGecko
+    for crypto_id in crypto_ids:
+        url = f'https://api.coingecko.com/api/v3/coins/{crypto_id}/market_chart/range?vs_currency=usd&from={start_date}&to={end_date}&interval=hourly'
+        response = requests.get(url)
+
+        # Check for successful API response
+        if response.status_code != 200:
+            raise Exception(
+                f'Failed to retrieve historical data for {crypto_id} from CoinGecko API'
+            )
+
+        # Parse API response JSON
+        data = response.json()
+        prices = data['prices']
+        market_caps = data['market_caps']
+        total_volumes = data['total_volumes']
+
+        # Create DataFrame for this crypto and add to main DataFrame
+        crypto_df = pd.DataFrame(prices,
+                                 columns=['timestamp', f'{crypto_id}_price'])
+        crypto_df[f'{crypto_id}_market_cap'] = [
+            market_cap[1] for market_cap in market_caps
+        ]
+        crypto_df[f'{crypto_id}_total_volume'] = [
+            total_volume[1] for total_volume in total_volumes
+        ]
+        crypto_df['timestamp'] = crypto_df['timestamp'].apply(
+            lambda x: datetime.fromtimestamp(x / 1000))
+        crypto_df.set_index('timestamp', inplace=True)
+        data_df = pd.concat([data_df, crypto_df], axis=1)
+
+    # Add total volumes to DataFrame
+    volume_columns = [col for col in data_df.columns if '_total_volume' in col]
+    data_df['total_volume'] = data_df[volume_columns].sum(axis=1)
+
+    # Save DataFrame to CSV file
+    data_df.to_csv(csv_filename)
+    print(
+        f'Successfully wrote {len(data_df)} rows of historical hourly data to {csv_filename}'
+    )
+
+    return data_df
