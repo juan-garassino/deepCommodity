@@ -4,67 +4,7 @@ from datetime import datetime
 import pandas as pd
 import fredapi
 
-def get_historical_data_to_csv(crypto_ids, start_date, end_date, csv_filename):
-    """
-    Retrieves historical hourly data for given cryptocurrencies from CoinGecko API
-    and saves it to a CSV file.
-
-    crypto_ids: list of strings, the IDs of the cryptocurrencies on CoinGecko e.g. ['bitcoin', 'ethereum']
-    start_date: string, the start date of the historical data in format 'dd-mm-yyyy'
-    end_date: string, the end date of the historical data in format 'dd-mm-yyyy'
-    csv_filename: string, the filename to save the CSV data to
-
-    Returns: None
-    """
-
-    # Convert date strings to datetime objects
-    start_date = datetime.strptime(start_date, '%d-%m-%Y').strftime('%s')
-    end_date = datetime.strptime(end_date, '%d-%m-%Y').strftime('%s')
-
-    # Define fieldnames for CSV file
-    fieldnames = ['timestamp']
-    for crypto_id in crypto_ids:
-        fieldnames.append(f'{crypto_id}_price')
-
-    # Make API requests to CoinGecko for each cryptocurrency
-    data = {}
-    for crypto_id in crypto_ids:
-        url = f'https://api.coingecko.com/api/v3/coins/{crypto_id}/market_chart/range?vs_currency=usd&from={start_date}&to={end_date}&interval=hourly'
-        response = requests.get(url)
-
-        # Check for successful API response
-        if response.status_code != 200:
-            raise Exception(
-                f'Failed to retrieve historical data for {crypto_id} from CoinGecko API'
-            )
-
-        # Parse API response JSON
-        crypto_data = response.json()['prices']
-        for timestamp, price in crypto_data:
-            timestamp = datetime.fromtimestamp(
-                timestamp / 1000).strftime('%Y-%m-%d %H:%M:%S')
-            if timestamp in data:
-                data[timestamp][crypto_id] = price
-            else:
-                data[timestamp] = {crypto_id: price}
-
-    # Write data to CSV file
-    with open(csv_filename, mode='w', newline='') as csv_file:
-        writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
-        writer.writeheader()
-
-        for timestamp in data:
-            row = {'timestamp': timestamp}
-            for crypto_id in crypto_ids:
-                row[f'{crypto_id}_price'] = data[timestamp].get(crypto_id, '')
-            writer.writerow(row)
-
-    print(
-        f'Successfully wrote {len(data)} rows of historical hourly data to {csv_filename}'
-    )
-
-def get_multi_historical_data_to_csv(api_key, csv_filename, start_date,
-                                     end_date):
+def get_multi_historical_data_to_csv(api_key, csv_filename, start_date, end_date):
     """
     Retrieves historical hourly data for S&P 500, gold, silver, and petrol prices
     from Alpha Vantage API and saves it to a CSV file.
