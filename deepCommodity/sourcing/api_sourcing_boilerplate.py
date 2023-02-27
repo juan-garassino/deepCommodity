@@ -5,9 +5,118 @@ import fredapi
 from datetime import datetime, timedelta
 from google.cloud import bigquery
 
+import os
+import pandas as pd
+import fredapi
+from google.cloud import bigquery
 
-def get_multi_historical_data_to_dataframe(api_key, csv_filename, symbols,
-                                           interval, start_date, end_date):
+
+def retrieve_fred_data(series_ids,
+                       start_date,
+                       end_date,
+                       frequency='d',
+                       api_key=None,
+                       csv_filename=None,
+                       bq_dataset=None,
+                       bq_table=None):
+    # Check if API key is provided
+    if api_key is None:
+        api_key = os.environ.get('FRED_API_KEY')
+    if api_key is None:
+        raise ValueError('No API key provided')
+
+    # Initialize FRED API
+    fred = fredapi.Fred(api_key=api_key)
+
+    # Create empty dataframe to store all the data
+    df_all = pd.DataFrame()
+
+    # Check if CSV file exists and if so, read the last date collected
+    last_date_collected = None
+    if csv_filename and os.path.exists(csv_filename):
+        try:
+            df_csv = pd.read_csv(csv_filename, index_col=0)
+            last_date_collected = df_csv.index[-1]
+        except FileNotFoundError:
+            pass
+
+    # Loop through the series IDs and retrieve their data
+    for series_id in series_ids:
+        # Retrieve data for the series
+        series_data = fred.get_series(series_id,
+                                      start_date=start_date,
+                                      end_date=end_date,
+                                      frequency=frequency)
+
+        # Create dataframe for the series data
+        df = pd.DataFrame(series_data)
+
+        # Rename the column to the series ID
+        df.rename(columns={0: series_id}, inplace=True)
+
+        # Check if there is existing data and drop any overlapping rows
+        if last_date_collected:
+            df = df.loc[df.index > last_date_collected]
+
+        # Concatenate the series dataframe to the overall dataframe
+        df_all = pd.concat([df_all, df], axis=1)
+
+    # Drop any rows with missing values
+    df_all.dropna(inplace=True)
+
+    # Sort the rows by date
+    df_all.sort_index(inplace=True)
+
+    # Write data to CSV file
+    if csv_filename:
+        df_csv = pd.DataFrame()
+        if os.path.exists(csv_filename):
+            df_csv = pd.read_csv(csv_filename, index_col=0)
+        df_concat = pd.concat([df_csv, df_all]).drop_duplicates()
+        df_concat.to_csv(csv_filename)
+
+    # Upload data to Google BigQuery
+    if bq_dataset and bq_table:
+        # Initialize BigQuery client and dataset
+        client = bigquery.Client()
+        dataset_ref = client.dataset(bq_dataset)
+
+        # Check if dataset exists, and create it if not
+        try:
+            client.get_dataset(dataset_ref)
+        except Exception:
+            dataset = bigquery.Dataset(dataset_ref)
+            client.create_dataset(dataset)
+
+        # Create BigQuery table schema
+        schema = []
+        for col in df_all.columns:
+            schema.append(bigquery.SchemaField(col, 'FLOAT'))
+
+        # Create BigQuery table reference
+        table_ref = dataset_ref.table(bq_table)
+
+        # Check if table exists, and create it if not
+        try:
+            client.get_table(table_ref)
+        except Exception:
+            table = bigquery.Table(table_ref, schema=schema)
+            client.create_table(table)
+
+        # Load data into BigQuery table
+        job_config = bigquery.LoadJobConfig(schema=schema)
+        job = client.load_table_from_dataframe(
+            df_all,
+            table_ref,
+            job_config=job_config,
+            write_disposition='WRITE_APPEND')
+        job.result()
+
+    return df_all
+
+
+def retrieve_alphavantage_data(api_key, csv_filename, symbols, interval, start_date,
+                       end_date):
     """
     Retrieves historical data for given symbols and interval from Alpha Vantage API
     and saves it to a CSV file.
@@ -83,7 +192,7 @@ def get_multi_historical_data_to_dataframe(api_key, csv_filename, symbols,
     return df
 
 
-def get_historical_data_to_csv(crypto_ids, start_date, end_date, csv_filename):
+def retrieve_gecko_data(crypto_ids, start_date, end_date, csv_filename):
     """
     Retrieves historical hourly data for given cryptocurrencies from CoinGecko API
     and saves it to a CSV file.
@@ -98,6 +207,7 @@ def get_historical_data_to_csv(crypto_ids, start_date, end_date, csv_filename):
 
     # Convert date strings to datetime objects
     start_date = datetime.strptime(start_date, '%d-%m-%Y').strftime('%s')
+
     end_date = datetime.strptime(end_date, '%d-%m-%Y').strftime('%s')
 
     # Create empty DataFrame to store data
@@ -147,95 +257,7 @@ def get_historical_data_to_csv(crypto_ids, start_date, end_date, csv_filename):
     return data_df
 
 
-def get_fred_data(series_ids,
-                  start_date,
-                  end_date,
-                  api_key,
-                  csv_filename=None,
-                  to_bigquery=False,
-                  bq_dataset=None,
-                  bq_table=None):
-    # Initialize FRED API
-    fred = fredapi.Fred(api_key=api_key)
-
-    # Create empty dataframe to store all the data
-    df_all = pd.DataFrame()
-
-    # Check if CSV file exists and if so, read the last date collected
-    last_date_collected = None
-    if csv_filename:
-        try:
-            df_csv = pd.read_csv(csv_filename, index_col=0)
-            last_date_collected = df_csv.index[-1]
-        except FileNotFoundError:
-            pass
-
-    # Loop through the series IDs and retrieve their data
-    for series_id in series_ids:
-        # Retrieve data for the series
-        series_data = fred.get_series(series_id,
-                                      start_date=start_date,
-                                      end_date=end_date)
-
-        # Create dataframe for the series data
-        df = pd.DataFrame(series_data)
-
-        # Rename the column to the series ID
-        df.rename(columns={0: series_id}, inplace=True)
-
-        # Check if there is existing data and drop any overlapping rows
-        if last_date_collected:
-            df = df.loc[df.index > last_date_collected]
-
-        # Concatenate the series dataframe to the overall dataframe
-        df_all = pd.concat([df_all, df], axis=1)
-
-    # Drop any rows with missing values
-    df_all.dropna(inplace=True)
-
-    # Write data to CSV file
-    if csv_filename:
-        df_all.to_csv(csv_filename, mode='a', header=not last_date_collected)
-
-    # Upload data to Google BigQuery
-    if to_bigquery:
-        # Initialize BigQuery client and dataset
-        client = bigquery.Client()
-        dataset_ref = client.dataset(bq_dataset)
-
-        # Check if dataset exists, and create it if not
-        try:
-            client.get_dataset(dataset_ref)
-        except NotFound:
-            dataset = bigquery.Dataset(dataset_ref)
-            client.create_dataset(dataset)
-
-        # Create BigQuery table schema
-        schema = []
-        for col in df_all.columns:
-            schema.append(bigquery.SchemaField(col, 'FLOAT'))
-
-        # Create BigQuery table reference
-        table_ref = dataset_ref.table(bq_table)
-
-        # Check if table exists, and create it if not
-        try:
-            client.get_table(table_ref)
-        except NotFound:
-            table = bigquery.Table(table_ref, schema=schema)
-            client.create_table(table)
-
-        # Load data into BigQuery table
-        job_config = bigquery.LoadJobConfig(schema=schema)
-        job = client.load_table_from_dataframe(df_all,
-                                               table_ref,
-                                               job_config=job_config)
-        job.result()
-
-    return df_all
-
-
-def get_exchange_rates(start_date, end_date, symbols, api_key):
+def retrieve_exchange_rates_data(start_date, end_date, symbols, api_key):
     # define list of currency symbols and start/end timestamps
     start_timestamp = pd.Timestamp(start_date).strftime('%Y-%m-%d %H:%M:%S')
     end_timestamp = pd.Timestamp(end_date).strftime('%Y-%m-%d %H:%M:%S')
