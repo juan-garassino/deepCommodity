@@ -1,0 +1,17 @@
+.git
+.github
+.gitignore
+.env
+.env.*
+!.env.sample
+data/
+raw_data/
+notebooks/
+tests/
+.pytest_cache
+.venv
+__pycache__
+*.pyc
+*.pyo
+KILL_SWITCH
+deploy/

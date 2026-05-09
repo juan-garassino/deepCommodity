@@ -27,6 +27,9 @@ sys.path.insert(0, str(ROOT))
 
 DATA_MODELS = ROOT / "data" / "models"
 
+DC_API_URL_ENV = "DC_API_URL"
+DC_API_KEY_ENV = "DC_API_KEY"
+
 
 # ---- rule-based (no torch) -------------------------------------------------
 
@@ -143,6 +146,32 @@ def _news_predict(symbol: str, news_text: str) -> dict:
             "rationale": f"[news/{backend.name}] sent={s.value:+.2f}"}
 
 
+# ---- remote inference API (calls the FastAPI server) ----------------------
+
+def _api_predict(symbol: str, payload_extras: dict, api_url: str, api_key: str | None,
+                 model: str = "ensemble", timeout: float = 20.0) -> dict | None:
+    """POST /forecast on the deepCommodity inference service. Returns None on
+    auth/network failure — the caller should fall back to the local path."""
+    import requests
+    body = {"symbol": symbol, "model": model, **payload_extras}
+    headers = {"Content-Type": "application/json"}
+    if api_key:
+        headers["X-API-Key"] = api_key
+    try:
+        r = requests.post(f"{api_url.rstrip('/')}/forecast",
+                          json=body, headers=headers, timeout=timeout)
+        if r.status_code != 200:
+            return {"symbol": symbol, "direction": "flat", "confidence": 0.0,
+                    "rationale": f"[api error {r.status_code}] {r.text[:120]}"}
+        d = r.json()
+        return {"symbol": symbol, "direction": d.get("direction", "flat"),
+                "confidence": float(d.get("confidence", 0.0)),
+                "rationale": f"[api/{d.get('model','?')}] {d.get('rationale','')[:200]}"}
+    except Exception as e:  # noqa: BLE001
+        return {"symbol": symbol, "direction": "flat", "confidence": 0.0,
+                "rationale": f"[api exception] {e}"}
+
+
 # ---- ensemble -------------------------------------------------------------
 
 def _ensemble(predictions: list[dict]) -> dict | None:
@@ -186,10 +215,17 @@ def main() -> None:
     p.add_argument("--symbols", default="",
                    help="optional override of symbols to forecast (else from --input)")
     p.add_argument("--model", default="rule-based",
-                   choices=["rule-based", "price", "orderflow", "news", "fused", "ensemble"])
+                   choices=["rule-based", "price", "orderflow", "news",
+                            "fused", "ensemble", "api"])
     p.add_argument("--bars-dir", default=str(ROOT / "data" / "bars"))
     p.add_argument("--orderflow-dir", default=str(ROOT / "data" / "orderflow"))
     p.add_argument("--news-input", help="path to fetch_news.py JSON for the news/ensemble path")
+    p.add_argument("--api-url", default=os.getenv(DC_API_URL_ENV),
+                   help="deepCommodity inference service URL (or DC_API_URL env)")
+    p.add_argument("--api-key", default=os.getenv(DC_API_KEY_ENV),
+                   help="X-API-Key for the inference service (or DC_API_KEY env)")
+    p.add_argument("--api-model", default="ensemble",
+                   help="model param to send when --model=api (default: ensemble)")
     args = p.parse_args()
 
     symbols_data = _load_inputs(args.input) if args.input else {}
@@ -225,6 +261,19 @@ def main() -> None:
             continue
         if args.model == "news":
             forecasts.append(_news_predict(sym, news_text))
+            continue
+        if args.model == "api":
+            if not args.api_url:
+                sys.exit("--model api requires --api-url or DC_API_URL env")
+            d = symbols_data.get(sym, {})
+            extras = {
+                "pct_change_24h": d.get("pct_change_24h"),
+                "pct_change_7d": d.get("pct_change_7d"),
+                "news_text": news_text or None,
+            }
+            f = _api_predict(sym, extras, args.api_url, args.api_key,
+                             model=args.api_model)
+            if f: forecasts.append(f)
             continue
         if args.model in ("fused", "ensemble"):
             preds = []

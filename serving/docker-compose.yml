@@ -1,0 +1,29 @@
+services:
+  dc-serve:
+    build:
+      context: ..
+      dockerfile: serving/Dockerfile
+    image: deepcommodity-serve:latest
+    container_name: dc-serve
+    restart: unless-stopped
+    ports:
+      - "${DC_SERVE_PORT:-8080}:8080"
+    environment:
+      DC_API_KEY: "${DC_API_KEY:?set DC_API_KEY in .env or env}"
+      MODELS_DIR: /srv/models
+      SENTIMENT_BACKEND: "${SENTIMENT_BACKEND:-rule-based}"
+    volumes:
+      # Models live outside the image — bind-mount your synced Drive folder
+      # or a path you rclone into. Read-only is correct (server never writes).
+      - ${MODELS_HOST_DIR:-./models}:/srv/models:ro
+    read_only: true
+    tmpfs:
+      - /tmp
+    security_opt:
+      - no-new-privileges:true
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://127.0.0.1:8080/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
