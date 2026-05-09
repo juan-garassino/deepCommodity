@@ -35,6 +35,13 @@
       "Bash(git push -u origin claude/*)",
       "Bash(git push origin claude/*)",
 
+      "Bash(pip install --quiet --break-system-packages ccxt:*)",
+      "Bash(pip install --quiet --break-system-packages alpaca-py:*)",
+      "Bash(pip install --quiet --break-system-packages ccxt alpaca-py:*)",
+      "Bash(python3 -m pip install --quiet --break-system-packages ccxt:*)",
+      "Bash(python3 -m pip install --quiet --break-system-packages alpaca-py:*)",
+      "Bash(python3 -m pip install --quiet --break-system-packages ccxt alpaca-py:*)",
+
       "Read(*)",
       "Write(/tmp/*)",
       "Edit(RESEARCH-LOG.md)",

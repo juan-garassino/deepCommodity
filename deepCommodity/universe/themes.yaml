@@ -1,0 +1,67 @@
+# deepCommodity tradable universe — three buckets:
+#   anchors      — always evaluated on momentum (the "safe" lane)
+#   large_cap    — top 30-ish crypto / equity sector ETFs (researched + tradable)
+#   mid_cap      — research-only crypto (must clear hidden-gem-style thesis gate)
+#   themes       — equity buckets keyed by narrative; symbols are 2nd-order beneficiaries
+#
+# Edit only via the weekly-review's proposed-edits block; never auto-edited.
+
+crypto:
+  anchors:    [BTC, ETH]
+  large_cap:
+    - SOL
+    - BNB
+    - XRP
+    - ADA
+    - DOGE
+    - TRX
+    - AVAX
+    - LINK
+    - DOT
+    - MATIC
+    - ATOM
+    - NEAR
+    - LTC
+    - BCH
+    - XLM
+    - ICP
+    - FIL
+    - APT
+    - HBAR
+    - ARB
+    - OP
+  mid_cap:    # research-only — must clear thesis gate
+    - INJ
+    - FET
+    - RNDR
+    - TIA
+    - IMX
+    - GRT
+    - AAVE
+    - UNI
+    - MKR
+    - JUP
+    - ENA
+    - ONDO
+    - TON
+    - SUI
+    - SEI
+    - KAS
+
+equity:
+  anchors:    [SPY, QQQ, AAPL, MSFT, NVDA, GOOGL, META, AMZN, BRK.B]
+  themes:
+    ai_compute:   [NVDA, AMD, AVGO, TSM, AMAT, ASML, MU, MRVL, ARM]
+    ai_power:     [VST, CEG, XEL, NEE, DUK, ETR, EXC, AEP, AES, NRG]
+    nuclear:      [CCJ, BWXT, SMR, NLR, URA, LEU, OKLO, NNE]
+    grid_infra:   [GEV, ETN, ROK, PWR, MTZ, FAST, EMR, AWK]
+    biotech:      [RXRX, VRTX, REGN, MRNA, GILD, BIIB, ABBV, BMRN]
+    weight_loss:  [LLY, NVO, AMGN, VKTX, MDGL]
+    space:        [RKLB, ASTS, IRDM, LMT, BA, RTX]
+    quantum:      [IONQ, QBTS, RGTI, ARQQ]
+    defense:      [LMT, RTX, NOC, GD, LDOS, HII, BAH, KTOS]
+    crypto_proxy: [COIN, MARA, RIOT, MSTR, CLSK, IBIT, ETHA]
+    fintech:      [SOFI, HOOD, NU, AFRM, LMND]
+    reshoring:    [CAT, DE, ETN, EMR, UFPI, MLM, VMC]
+    copper:       [FCX, SCCO, TECK, ERO, HBM]
+    climate:      [TSLA, ALB, LIT, FSLR, ENPH, RUN]

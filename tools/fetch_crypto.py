@@ -45,6 +45,43 @@ def fetch_coingecko(symbols: list[str]) -> dict:
     return out
 
 
+def fetch_top_n(n: int) -> dict:
+    """Top-N by market cap from CoinGecko. Lets the agent operate dynamically
+    without needing a pre-mapped ID for every symbol."""
+    headers = {}
+    if os.getenv("COINGECKO_API_KEY"):
+        headers["x-cg-demo-api-key"] = os.environ["COINGECKO_API_KEY"]
+    r = requests.get(
+        f"{COINGECKO_BASE}/coins/markets",
+        params={
+            "vs_currency": "usd",
+            "order": "market_cap_desc",
+            "per_page": min(n, 250),
+            "page": 1,
+            "price_change_percentage": "24h,7d,30d",
+            "sparkline": "false",
+        },
+        headers=headers, timeout=20,
+    )
+    r.raise_for_status()
+    out: dict[str, dict] = {}
+    for row in r.json():
+        sym = (row.get("symbol") or "").upper()
+        if not sym:
+            continue
+        out[sym] = {
+            "symbol": sym,
+            "price_usd": row.get("current_price"),
+            "market_cap_usd": row.get("market_cap"),
+            "total_volume_usd": row.get("total_volume"),
+            "pct_change_24h": row.get("price_change_percentage_24h_in_currency"),
+            "pct_change_7d": row.get("price_change_percentage_7d_in_currency"),
+            "pct_change_30d": row.get("price_change_percentage_30d_in_currency"),
+            "coingecko_id": row.get("id"),
+        }
+    return out
+
+
 def maybe_binance_ticker(symbols: list[str]) -> dict:
     """Best-effort live ticker. Skipped silently if ccxt missing or auth fails."""
     if not os.getenv("BINANCE_API_KEY"):
@@ -70,16 +107,25 @@ def maybe_binance_ticker(symbols: list[str]) -> dict:
 
 def main() -> None:
     p = argparse.ArgumentParser()
-    p.add_argument("--symbols", required=True, help="comma-separated tickers, e.g. BTC,ETH,SOL")
+    g = p.add_mutually_exclusive_group(required=True)
+    g.add_argument("--symbols",
+                   help="comma-separated tickers, e.g. BTC,ETH,SOL")
+    g.add_argument("--top-n", type=int,
+                   help="fetch top N by market cap (1-250). Pulls dynamic universe.")
     args = p.parse_args()
-    symbols = [s.strip() for s in args.symbols.split(",") if s.strip()]
-    if not symbols:
-        sys.exit("no symbols")
 
-    base = fetch_coingecko(symbols)
-    live = maybe_binance_ticker(symbols)
-    for sym, extra in live.items():
-        base.setdefault(sym, {"symbol": sym}).update(extra)
+    if args.top_n:
+        if not (1 <= args.top_n <= 250):
+            sys.exit("--top-n must be between 1 and 250")
+        base = fetch_top_n(args.top_n)
+    else:
+        symbols = [s.strip() for s in args.symbols.split(",") if s.strip()]
+        if not symbols:
+            sys.exit("no symbols")
+        base = fetch_coingecko(symbols)
+        live = maybe_binance_ticker(symbols)
+        for sym, extra in live.items():
+            base.setdefault(sym, {"symbol": sym}).update(extra)
 
     print(json.dumps({
         "fetched_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
