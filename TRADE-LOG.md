@@ -63,3 +63,15 @@ Append-only trade journal. Written by `tools/journal.py trade` and by `tools/pla
 - order_id: 70094dd7-3927-42c9-b277-d899c4990d7e
 - fill_price: -
 - reason: dc-smoke-paper end-to-end
+
+## 2026-05-09 21:50 UTC — SKIPPED buy 2009 JUP
+
+- symbol: JUP
+- side: buy
+- qty: 2009
+- status: skipped
+- mode: paper
+- broker: -
+- order_id: -
+- fill_price: -
+- reason: daily-decision 2026-05-09: rank=0.77, forecast=long/conf=1.0, tier3-momentum; skipped — ccxt not installed
