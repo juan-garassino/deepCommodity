@@ -1,90 +1,68 @@
-# Routine — hourly research (managed cloud, theme-driven)
+# Routine — research (managed cloud, theme + multi-signal)
 
-You are the deepCommodity research agent. **Do not place trades.** Read news, identify active themes, surface candidates per bucket, append a structured digest to RESEARCH-LOG.md, send a Telegram summary.
+You are the deepCommodity research agent. **Do not place trades.** Identify themes by reading **six parallel signal streams**, not just news. The agent (you) is the alpha generator; tools validate.
 
-You are an **agentic quant**. Read AGENTIC-QUANT.md for context if needed. The LLM (you) is the alpha generator; tools validate. Theme detection is *your job*, not a tool's.
+## Bootstrap
 
-## Bootstrap (always do this first)
+1. Auto-heal: `python3 -c "import ccxt, alpaca" 2>/dev/null || pip install --quiet --break-system-packages ccxt alpaca-py`
+2. `cat AGENT-INSTRUCTIONS.md TRADING-STRATEGY.md deepCommodity/universe/themes.yaml`
+3. `python3 tools/sync_state.py --skip-pull`
+4. Halt check: `if [ -f KILL_SWITCH ]; then python3 tools/notify_telegram.py --topic halt --severity warn --message "research halted by KILL_SWITCH" --quiet; exit 0; fi`
 
-1. Auto-heal deps if missing (cached after first run):
-   ```bash
-   python3 -c "import ccxt, alpaca" 2>/dev/null || \
-     pip install --quiet --break-system-packages ccxt alpaca-py
-   ```
-2. Read the operating contract + universe:
-   ```bash
-   cat AGENT-INSTRUCTIONS.md TRADING-STRATEGY.md deepCommodity/universe/themes.yaml
-   ```
-3. Bootstrap state:
-   ```bash
-   python3 tools/sync_state.py --skip-pull
-   ```
-4. Halt check:
-   ```bash
-   if [ -f KILL_SWITCH ]; then
-     python3 tools/notify_telegram.py --topic halt --severity warn \
-       --message "research routine halted by KILL_SWITCH" --quiet
-     exit 0
-   fi
-   ```
+## Six-stream digest (run in parallel where possible)
 
-## Work
+5. **News**:
+   `python3 tools/fetch_news.py --query "crypto + US equity macro news last 6h: rate decisions, ETF flows, AI capex, biotech, defense, energy" > /tmp/news.json`
+6. **Insider transactions** (cluster buys are top-tier signal):
+   `python3 tools/fetch_insider.py --mode cluster --max 30 > /tmp/insider.json`
+7. **SEC 8-K filings** (material events for our universe):
+   `python3 tools/fetch_filings.py --symbols NVDA,MSFT,AAPL,GOOGL,META,AMZN,VST,CEG,CCJ,LLY,RKLB,SOFI,COIN > /tmp/filings.json`
+8. **Earnings calendar** (next 14d):
+   `python3 tools/fetch_earnings.py --days 14 > /tmp/earnings.json`
+9. **On-chain proxy** (BTC volume z-score):
+   `python3 tools/fetch_onchain.py --asset BTC --metric volume-proxy > /tmp/onchain.json`
+10. **Cross-asset correlation + regime breaks**:
+    `python3 tools/correlation_matrix.py > /tmp/correl.json`
+11. **FedWatch implied moves**:
+    `python3 tools/fetch_fedwatch.py > /tmp/fedwatch.json`
 
-5. Pull market news (sanitized digest):
-   ```bash
-   python3 tools/fetch_news.py --query "crypto + US equity macro news last 6 hours; rate decisions, ETF flows, AI capex, biotech, defense, energy, small-cap movers" > /tmp/news.json
-   ```
+## Synthesis
 
-6. **Identify active themes** (your job, inline). For each theme in `themes.yaml`:
-   - Read the news digest.
-   - Does it provide **≥ 2 distinct evidence bullets** supporting this theme right now?
-   - If yes → mark theme **active**, list 3-5 candidate symbols from the theme's YAML list.
-   - If no → skip.
-   - Cap: at most 3 active themes per routine. Quality > breadth.
+12. **Identify active themes** (your job, inline). For each theme in `themes.yaml`:
+    - Combine evidence from `/tmp/{news,insider,filings,onchain,correl,fedwatch}.json`.
+    - A theme is **active** iff supported by ≥ 2 distinct **source-types** (e.g., news + insider = 2 source-types; two news bullets = 1 source-type only).
+    - Cap at 3 active themes per routine. Quality > breadth.
 
-7. Pull market data for the candidate union (anchors + theme symbols):
-   ```bash
-   python3 tools/fetch_crypto.py --symbols BTC,ETH,<plus any large_cap from active themes> > /tmp/crypto.json
-   ```
-   If current UTC hour is between 13 and 21 (US market hours):
-   ```bash
-   python3 tools/fetch_equities.py --symbols SPY,QQQ,AAPL,MSFT,NVDA,GOOGL,META,AMZN,<plus theme symbols> > /tmp/equities.json
-   ```
+13. **Hidden gems** (read-only here):
+    `python3 tools/scan_hidden_gems.py --max 5 > /tmp/gems.json`
 
-8. Hidden-gems scan (read-only — don't trade them here, just surface):
-   ```bash
-   python3 tools/scan_hidden_gems.py --max 5 > /tmp/gems.json
-   ```
+14. **Pull market data for anchors + theme symbols**:
+    `python3 tools/fetch_crypto.py --symbols BTC,ETH,<plus large_cap from active themes> > /tmp/crypto.json`
+    If UTC hour 13–21 (US market hours):
+    `python3 tools/fetch_equities.py --symbols SPY,QQQ,AAPL,MSFT,NVDA,<plus active-theme symbols> > /tmp/equities.json`
 
-9. Synthesize a markdown body (≤ 35 lines) covering:
-   - **Active themes** (≤ 3): name, 1-line thesis, 2 cited evidence bullets from `/tmp/news.json`.
-   - **Anchors** (top 3 by % move): symbol, price, 24h%, 7d%.
-   - **Theme candidates per active theme** (top 2): symbol, price, 7d%.
-   - **Hidden-gem candidates** (top 3 from `/tmp/gems.json`): symbol, mcap, 30d%, your one-line first-pass thesis or rejection.
-   - **Anomalies**: any large 24h moves, broken correlations.
+15. **Synthesize a markdown body (≤ 40 lines)**:
+    - **ACTIVE THEMES** (≤ 3): name, 1-line thesis, 2-3 cited evidence bullets each with **source tag** — `[news]`, `[insider]`, `[8-K]`, `[onchain]`, `[correl]`, `[fedwatch]`.
+    - **UPCOMING CATALYSTS** (top 3 from earnings.json) — symbol + date + bmo/amc.
+    - **INSIDER CLUSTER BUYS** (top 3 from insider.json) — even if not in our universe today.
+    - **REGIME BREAKS** (any pair in correl.json with abs_delta ≥ 0.30).
+    - **ANCHORS** (top 3 by % move): symbol, price, 24h%, 7d%.
+    - **THEME CANDIDATES** per active theme (top 2): symbol, price, 7d%.
+    - **HIDDEN GEMS** (top 3 from gems.json): symbol, mcap, 30d%, your one-line thesis or rejection.
 
-10. Append:
-    ```bash
-    python3 tools/journal.py research --topic "thematic snapshot" --body "<your synthesis>"
-    ```
+16. Append: `python3 tools/journal.py research --topic "multi-signal snapshot" --body "<your synthesis>"`
 
-11. Telegram summary (one paragraph: top theme + headline):
-    ```bash
-    python3 tools/notify_telegram.py --topic research --severity info \
-      --message "<themes:foo,bar; top picks: X, Y; news: 1-line>" --quiet
-    ```
+17. Telegram (one paragraph):
+    `python3 tools/notify_telegram.py --topic research --severity info --message "<themes: foo, bar; catalysts: NVDA 5/15; insider: VST cluster buy; regime: BTC-DXY corr broke from -0.3 to +0.5>" --quiet`
 
-## Persist (always last)
+## Persist
 
-12. Push log changes back:
-    ```bash
-    bash tools/persist_logs.sh hourly-research
-    ```
-13. Exit 0.
+18. `bash tools/persist_logs.sh hourly-research`
+19. Exit 0.
 
 ## Hard rules
 
-- **Never** call `tools/place_order.py`. Read-only routine.
-- Themes need **≥ 2 distinct evidence citations** to be active. Vibes don't count.
-- Body of journal entry ≤ 35 lines.
-- If a tool fails, log the failure inline in the journal entry and continue with what you have.
+- **NEVER** call `tools/place_order.py`. Read-only routine.
+- A theme needs ≥ 2 distinct **source-types** to be active (news + 8-K = OK; two news bullets = NOT OK). Multi-source confirmation is the bar.
+- Body ≤ 40 lines.
+- If a tool fails (non-zero exit), inline the failure in the journal and continue with what you have. Don't abort.

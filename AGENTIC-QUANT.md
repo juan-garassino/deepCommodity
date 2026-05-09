@@ -2,6 +2,23 @@
 
 Why this system isn't a list ranker, and what it is instead.
 
+## Data layer (six-stream digest)
+
+Every research routine reads **six parallel signal streams** before identifying themes. A theme is "active" only when supported by ≥ 2 distinct source-types — multi-source confirmation is the bar.
+
+| Stream | Tool | Source | Tier |
+|---|---|---|---|
+| News | `tools/fetch_news.py` | OpenAI search | S |
+| Insider transactions | `tools/fetch_insider.py` | OpenInsider (SEC Form 4) | S |
+| Material events (8-K) | `tools/fetch_filings.py` | SEC EDGAR | S |
+| Earnings calendar | `tools/fetch_earnings.py` | Finnhub (or yfinance fallback) | S |
+| On-chain crypto | `tools/fetch_onchain.py` | CryptoQuant (or Binance volume z-score) | S |
+| Cross-asset regime | `tools/correlation_matrix.py` | yfinance + Binance public | S |
+| Fed-funds implied moves | `tools/fetch_fedwatch.py` | yfinance ZQ=F + FRED target rate | S |
+| Hidden gems scanner | `tools/scan_hidden_gems.py` | CoinGecko top 250 | A |
+
+All news-text fetchers (insider, 8-K summaries, news) pass through `deepCommodity/guardrails/sanitize.sanitize_news` before the agent reads them — prompt-injection patterns redacted.
+
 ## The shift
 
 **Old** (mechanical-momentum): a fixed 12-symbol crypto list + 9-symbol equity list, ranked by `momentum × log_inverse_mcap × volume`. Every run surfaces the same kind of small-cap momentum candidate (JUP, TIA, INJ). The "agent" is a thin wrapper around a ranker.

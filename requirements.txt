@@ -37,6 +37,10 @@ pmdarima
 ccxt
 alpaca-py
 
+# free-api signal sources
+feedparser
+yfinance
+
 # agent tooling
 python-dotenv
 pyyaml
