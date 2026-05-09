@@ -63,3 +63,15 @@ Append-only trade journal. Written by `tools/journal.py trade` and by `tools/pla
 - order_id: 70094dd7-3927-42c9-b277-d899c4990d7e
 - fill_price: -
 - reason: dc-smoke-paper end-to-end
+
+## 2026-05-09 21:49 UTC — BLOCKED buy 100 JUP
+
+- symbol: JUP
+- side: buy
+- qty: 100
+- status: blocked
+- mode: paper
+- broker: -
+- order_id: -
+- fill_price: -
+- reason: 22:00 UTC daily-decision: rank=0.768 conf=1.00 momentum 7d=+38.41%; blocked by place_order error (ccxt not installed)
