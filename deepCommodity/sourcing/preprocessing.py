@@ -1,3 +1,11 @@
+from typing import List, Tuple
+
+import numpy as np
+import pandas as pd
+
+TARGET = "Average Price"
+
+
 def get_folds(df: pd.DataFrame, fold_length: int,
               fold_stride: int) -> List[pd.DataFrame]:
     '''

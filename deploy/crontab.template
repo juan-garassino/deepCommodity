@@ -1,0 +1,23 @@
+# deepCommodity — cron schedule (UTC).
+# Install on the remote with:
+#   crontab -e
+# and paste the entries below (adjusting REPO if your checkout lives elsewhere).
+# All routines log to $REPO/logs/<routine>.log; failures ping Telegram via run_routine.sh.
+
+REPO=/srv/deepCommodity
+SHELL=/bin/bash
+
+# Heartbeat every 15 min — verifies the loop is alive (no API keys required).
+*/15 * * * *   $REPO/deploy/run_routine.sh heartbeat
+
+# Hourly research at :07 (offset to avoid rate-limit collisions on the hour).
+7 * * * *      $REPO/deploy/run_routine.sh hourly-research
+
+# Weekday daily decision: 14:00 UTC = ≈30 min after US market open.
+0 14 * * 1-5   $REPO/deploy/run_routine.sh daily-decision
+
+# Crypto-only second pass: 22:00 UTC daily.
+0 22 * * *     $REPO/deploy/run_routine.sh daily-decision
+
+# Weekly review: Sunday 18:00 UTC.
+0 18 * * 0     $REPO/deploy/run_routine.sh weekly-review

@@ -1,0 +1,10 @@
+[Unit]
+Description=deepCommodity hourly research (xx:07)
+
+[Timer]
+OnCalendar=*-*-* *:07:00
+Unit=deepcommodity@hourly-research.service
+Persistent=true
+
+[Install]
+WantedBy=timers.target

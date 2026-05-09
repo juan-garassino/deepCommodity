@@ -1,0 +1,65 @@
+#!/usr/bin/env bash
+# Belt-and-suspenders: scan the staged diff for things that look like secrets.
+# .gitignore is the primary defense; this hook catches the case where a
+# secret got pasted into a non-ignored file (e.g. CLAUDE.md, a notebook, a
+# .env-renamed-to-config.txt, etc.).
+#
+# Enable once per clone:
+#   git config core.hooksPath .githooks
+#
+# Override with `git commit --no-verify` if you have a genuine false positive
+# (only the user can override — never use --no-verify in a script).
+
+set -u
+
+RED='\033[0;31m'
+RESET='\033[0m'
+
+# Files added or modified in this commit (exclude deletions).
+files="$(git diff --cached --name-only --diff-filter=ACMR)"
+[ -z "$files" ] && exit 0
+
+# Skip the sample / docs files that are SUPPOSED to mention key names.
+ignore_re='^(\.env\.(sample|example|template)|.*README.*|.*\.md$|\.gitignore|\.githooks/.*)$'
+
+# Patterns that strongly indicate a real secret. False positives are tolerable
+# here — a developer can --no-verify if they're sure.
+patterns=(
+  # OpenAI / Anthropic
+  'sk-[A-Za-z0-9]{20,}'
+  'sk-ant-[A-Za-z0-9_-]{20,}'
+  # Generic high-entropy keys
+  'AKIA[0-9A-Z]{16}'                                 # AWS access key
+  'AIza[0-9A-Za-z_-]{35}'                            # Google API key
+  'ghp_[A-Za-z0-9]{30,}'                             # GitHub personal token
+  'gho_[A-Za-z0-9]{30,}'                             # GitHub OAuth token
+  'xox[abprs]-[0-9A-Za-z-]{10,}'                     # Slack token
+  '-----BEGIN [A-Z ]*PRIVATE KEY-----'               # PEM private keys
+  # Common assignment shapes — non-empty values to .env-style keys
+  '^[[:space:]]*(BINANCE|ALPACA|BITFINEX|OPENAI|PERPLEXITY|TELEGRAM_BOT|FRED|COINGECKO|ALPHAVANTAGE)_(API_)?(KEY|SECRET|TOKEN)[[:space:]]*=[[:space:]]*[^[:space:]"'\''#]+$'
+)
+
+violations=0
+while IFS= read -r f; do
+  [ -z "$f" ] && continue
+  if [[ "$f" =~ $ignore_re ]]; then continue; fi
+  # Only scan text-like files (skip binaries, large files).
+  [ -f "$f" ] || continue
+  if ! file "$f" 2>/dev/null | grep -qE 'text|JSON|XML|empty'; then continue; fi
+  for p in "${patterns[@]}"; do
+    matches="$(git diff --cached -U0 -- "$f" | grep -E '^\+' | grep -nE "$p" || true)"
+    if [ -n "$matches" ]; then
+      printf "${RED}pre-commit: probable secret in${RESET} %s\n" "$f"
+      printf "  pattern: %s\n" "$p"
+      printf "%s\n" "$matches" | sed 's/^/    /' | head -n 3
+      violations=$((violations + 1))
+    fi
+  done
+done <<< "$files"
+
+if [ "$violations" -gt 0 ]; then
+  echo
+  printf "${RED}commit aborted${RESET} — $violations probable secret(s) in staged diff.\n"
+  echo "If this is a false positive, commit with --no-verify."
+  exit 1
+fi

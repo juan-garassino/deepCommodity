@@ -1,0 +1,11 @@
+[Unit]
+Description=deepCommodity heartbeat (every 15 min)
+
+[Timer]
+OnBootSec=2min
+OnUnitActiveSec=15min
+Unit=deepcommodity@heartbeat.service
+Persistent=true
+
+[Install]
+WantedBy=timers.target

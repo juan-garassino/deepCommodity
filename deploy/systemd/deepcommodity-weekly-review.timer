@@ -1,0 +1,10 @@
+[Unit]
+Description=deepCommodity weekly review (Sundays 18:00 UTC)
+
+[Timer]
+OnCalendar=Sun *-*-* 18:00:00
+Unit=deepcommodity@weekly-review.service
+Persistent=true
+
+[Install]
+WantedBy=timers.target

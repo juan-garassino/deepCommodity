@@ -1,3 +1,4 @@
+from google.api_core.exceptions import NotFound
 from google.cloud import bigquery
 import matplotlib.pyplot as plt
 

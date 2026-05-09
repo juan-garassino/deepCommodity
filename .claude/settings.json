@@ -1,0 +1,38 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python tools/*.py:*)",
+      "Bash(python:*tools/*.py*)",
+      "Bash(cat AGENT-INSTRUCTIONS.md:*)",
+      "Bash(cat TRADING-STRATEGY.md:*)",
+      "Bash(cat PROJECT-TRADING-PLAN.md:*)",
+      "Bash(cat WEEKLY-REVIEW.md:*)",
+      "Bash(cat RESEARCH-LOG.md:*)",
+      "Bash(cat TRADE-LOG.md:*)",
+      "Bash(tail:*RESEARCH-LOG.md)",
+      "Bash(tail:*TRADE-LOG.md)",
+      "Bash(test -f KILL_SWITCH*)",
+      "Bash(ls:*)",
+      "Bash(git status)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "Read(*)",
+      "Write(/tmp/*)",
+      "Edit(WEEKLY-REVIEW.md)"
+    ],
+    "deny": [
+      "Bash(rm:*)",
+      "Bash(curl:*)",
+      "Bash(wget:*)",
+      "Bash(pip install:*)",
+      "Bash(npm:*)",
+      "Bash(git push:*)",
+      "Bash(git commit:*)",
+      "Edit(TRADING-STRATEGY.md)",
+      "Edit(AGENT-INSTRUCTIONS.md)",
+      "Edit(.env)",
+      "Edit(KILL_SWITCH)",
+      "Write(KILL_SWITCH)"
+    ]
+  }
+}

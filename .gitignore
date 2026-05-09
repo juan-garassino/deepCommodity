@@ -3,6 +3,93 @@
 .ipynb_checkpoints
 .DS_Store
 raw_data/
+data/
 *.csv
 **/__pycache__/
+KILL_SWITCH
+.claude/settings.local.json
+*.log
+
+# =============================================================================
+# Secrets & credentials — fail-closed.
+# Anything that smells like a key, token, secret, or credential is gitignored.
+# Re-allow only the explicit sample/example/template files at the bottom.
+# =============================================================================
 .env
+.env.*
+.envrc
+.environ
+
+# Generic key / token / credential file patterns
+*.key
+*.pem
+*.p12
+*.pfx
+*.crt
+*.cer
+*.der
+*.jks
+*.keystore
+*.asc
+*.gpg
+*.pgp
+id_rsa
+id_ed25519
+id_ecdsa
+id_dsa
+*_rsa
+*_ed25519
+
+# Common credential filenames
+secrets
+secret
+secrets.*
+secret.*
+credentials
+credentials.*
+credential.*
+*.credentials.json
+*-credentials.json
+service-account*.json
+service_account*.json
+service-account*.yaml
+gcp-key*.json
+gcs-key*.json
+aws-credentials*
+.aws/
+.gcloud/
+.config/gcloud/
+*.token
+.token
+*.session
+
+# Tool-specific secret stashes
+.claude/credentials*
+.claude/secrets*
+.claude/.env*
+.openai/
+.anthropic/
+.huggingface/token
+~/.cache/huggingface/token
+.netrc
+_netrc
+
+# Editor/IDE secret stashes
+.vscode/secrets*
+.idea/secrets*
+.idea/dataSources.xml
+
+# Vault / local secret manager files
+.vault-token
+vault.json
+secrets.yaml
+secrets.yml
+secrets.toml
+
+# Re-allow explicit non-secret samples (these MUST live in the repo)
+!.env.sample
+!.env.example
+!.env.template
+!*.sample
+!*.example
+!*.template

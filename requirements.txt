@@ -30,3 +30,15 @@ memoized-property
 termcolor
 
 pycoingecko
+statsmodels
+pmdarima
+
+# brokers
+ccxt
+alpaca-py
+
+# agent tooling
+python-dotenv
+pyyaml
+tenacity
+pydantic

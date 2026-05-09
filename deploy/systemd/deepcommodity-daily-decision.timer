@@ -1,0 +1,11 @@
+[Unit]
+Description=deepCommodity daily decision (14:00 UTC weekdays + 22:00 UTC daily)
+
+[Timer]
+OnCalendar=Mon..Fri *-*-* 14:00:00
+OnCalendar=*-*-* 22:00:00
+Unit=deepcommodity@daily-decision.service
+Persistent=true
+
+[Install]
+WantedBy=timers.target

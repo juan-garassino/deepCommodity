@@ -1,0 +1,23 @@
+[Unit]
+Description=deepCommodity routine: %i
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=trader
+Group=trader
+WorkingDirectory=/srv/deepCommodity
+EnvironmentFile=/srv/deepCommodity/.env
+ExecStart=/srv/deepCommodity/deploy/run_routine.sh %i
+StandardOutput=append:/srv/deepCommodity/logs/%i.log
+StandardError=append:/srv/deepCommodity/logs/%i.log
+
+# Sandboxing — keep the routine away from anything outside the repo.
+ProtectSystem=strict
+ReadWritePaths=/srv/deepCommodity
+ProtectHome=read-only
+NoNewPrivileges=true
+PrivateTmp=true
+LockPersonality=true
+RestrictSUIDSGID=true

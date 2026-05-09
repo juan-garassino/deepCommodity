@@ -1,0 +1,12 @@
+{
+  "fetched_at": "2026-01-01T00:00:00+00:00",
+  "asset_class": "crypto",
+  "symbols": {
+    "BTC": {"symbol": "BTC", "price_usd": 60000, "market_cap_usd": 1.2e12, "total_volume_usd": 4e10, "pct_change_24h": 1.2, "pct_change_7d": 5.0},
+    "ETH": {"symbol": "ETH", "price_usd": 3000, "market_cap_usd": 4e11, "total_volume_usd": 2e10, "pct_change_24h": 0.8, "pct_change_7d": 4.0},
+    "SOL": {"symbol": "SOL", "price_usd": 150, "market_cap_usd": 7e10, "total_volume_usd": 3e9, "pct_change_24h": 2.0, "pct_change_7d": 8.0},
+    "INJ": {"symbol": "INJ", "price_usd": 30, "market_cap_usd": 3e9, "total_volume_usd": 5e8, "pct_change_24h": 3.5, "pct_change_7d": 12.0},
+    "TIA": {"symbol": "TIA", "price_usd": 8, "market_cap_usd": 8e8, "total_volume_usd": 1.2e8, "pct_change_24h": 4.0, "pct_change_7d": 18.0},
+    "JUP":  {"symbol": "JUP", "price_usd": 1.2, "market_cap_usd": 1.5e9, "total_volume_usd": 2e8, "pct_change_24h": -0.5, "pct_change_7d": -3.0}
+  }
+}
