@@ -52,3 +52,45 @@ defense top 2: RTX (Raytheon, direct MidEast systems supplier), LMT (F-35 backlo
 - Crypto -2% 24h while US equities at record highs: BTC/ETH decoupling bearishly from risk-on
 - Oil >$100 + hot PPI = dual inflation shock; macro headwind for rate-sensitive positions
 - Cerebras Systems IPO demand surge = private AI infra buildout accelerating beyond public markets
+
+## 2026-05-14 18:10 UTC — thematic snapshot
+
+## Active Themes (2/3 cap)
+
+**1. ai_compute** — ACTIVE
+Thesis: H200 China export approval + chip-led record equity rally signals sustained AI semiconductor demand across the supply chain.
+- Evidence A: US approved H200 chip sales to ~10 Chinese firms; NVDA +3% intraday (MarketScreener/Newsquawk, 2026-05-14)
+- Evidence B: S&P 500 and Nasdaq hit new record highs driven by tech/chip gains; Dow +0.8%, Nasdaq leads (BusinessTimes/FXLeaders, 2026-05-14)
+Candidates: NVDA (direct H200 beneficiary, +19.2% 7d, $234.25), AMD (AI chip competitor, +25.4% 7d — strongest mover)
+
+**2. defense** — ACTIVE
+Thesis: Dual geopolitical pressure — US-China summit Hormuz/Iran framing + Middle East oil spike — sustains defense procurement outlook.
+- Evidence A: US-China summit; both sides agreed to keep Strait of Hormuz open and prevent Iran nuclear weapons (Newsquawk, 2026-05-14)
+- Evidence B: Energy sector led S&P to new high on Middle East oil spike above $100/bbl (Kiplinger, 2026-05-11)
+Candidates: RTX ($175.94, +1.8% 7d — Raytheon missile systems, MidEast exposure), LMT ($519.01, +1.9% 7d — F-35 backlog)
+
+## Anchors (top 3 by 7d move)
+- AMD: $445.38 | 7d +25.4% (ai_compute spillover — cheaper AI chip exposure)
+- NVDA: $234.25 | 7d +19.2% (H200 China access direct catalyst)
+- QQQ: $718.87 | 7d +5.5% (chip-led index momentum)
+- BTC: $81,597 | 24h +2.57% | 7d +1.9% (per fetch_crypto)
+- ETH: $2,307 | 24h +2.04% | 7d +0.3% (per fetch_crypto)
+
+## Theme Candidates
+ai_compute top 2: NVDA ($234.25, +19.2% 7d), AMD ($445.38, +25.4% 7d — outpacing primary)
+defense top 2: RTX ($175.94, +1.8% 7d), LMT ($519.01, +1.9% 7d)
+
+## Hidden Gems (top 5 scanned — all rejected)
+- LAB: $6.25 | mcap $473M | 30d +975% — REJECT: parabolic meme coin, no news catalyst, fails thesis gate
+- TROLL: $0.134 | mcap $133M | 30d +722% | 7d +184% — REJECT: meme token, zero fundamental basis
+- B (BUILDon): $0.484 | mcap $485M | 24h -27.6% — REJECT: momentum collapse intraday, no thesis
+- SKYAI: $0.376 | mcap $376M | 7d -38.1% — REJECT: 7d deeply negative, momentum broken
+- H (Humanity): $0.250 | mcap $455M | 30d +156% — REJECT: biometric identity chain, no news-linked thesis available
+
+## Anomalies
+- AMD +25.4% 7d > NVDA +19.2% 7d: second-order AI chip beneficiary outpacing the primary — sector rotation into cheaper exposure
+- Defense underperforming vs geopolitical catalysts: RTX/LMT +1-2% 7d vs SPY +3.2% — market pricing risk-on over defensive allocation
+- Crypto lagging US equity risk-on: BTC +1.9% 7d, ETH +0.3% 7d while QQQ +5.5%
+- Cisco (CSCO) +14.7% on restructuring + revenue raise — enterprise tech restructuring wave accelerating
+- Kevin Warsh (hawkish) confirmed as Fed Chair (54-45 Senate, 2026-05-13) — rate cuts increasingly off table
+- Mortgage rate eased to 6.36% despite hawkish Fed signal — mixed rate trajectory signals
