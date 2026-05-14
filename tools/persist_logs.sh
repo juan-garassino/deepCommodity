@@ -26,7 +26,11 @@ git config user.email "${GIT_BOT_EMAIL:-bot@deepcommodity.local}"
 git config user.name  "${GIT_BOT_NAME:-deepCommodity-bot}"
 
 # Stage only the log files — never auto-commit anything else.
-git add RESEARCH-LOG.md TRADE-LOG.md WEEKLY-REVIEW.md KILL_SWITCH 2>/dev/null || true
+# Add each file individually so a missing KILL_SWITCH doesn't block the others.
+for _f in RESEARCH-LOG.md TRADE-LOG.md WEEKLY-REVIEW.md; do
+  [ -f "$_f" ] && git add "$_f" 2>/dev/null || true
+done
+[ -f KILL_SWITCH ] && git add KILL_SWITCH 2>/dev/null || true
 
 if git diff --cached --quiet; then
   echo "persist_logs: no log changes for ${ROUTINE}"
