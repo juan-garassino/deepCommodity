@@ -94,3 +94,32 @@ defense top 2: RTX ($175.94, +1.8% 7d), LMT ($519.01, +1.9% 7d)
 - Cisco (CSCO) +14.7% on restructuring + revenue raise — enterprise tech restructuring wave accelerating
 - Kevin Warsh (hawkish) confirmed as Fed Chair (54-45 Senate, 2026-05-13) — rate cuts increasingly off table
 - Mortgage rate eased to 6.36% despite hawkish Fed signal — mixed rate trajectory signals
+
+## 2026-05-16 22:04 UTC — 22:00-UTC-crypto-pass
+
+## 22:00 UTC crypto pass — 2026-05-16
+
+### Market Snapshot (per fetch_crypto 22:03 UTC)
+- BTC: $78,197 | 24h -1.01% | 7d -3.21%
+- ETH: $2,180.90 | 24h -1.66% | 7d -6.36%
+- SOL: $86.56 | 24h -2.86% | 7d -7.34%
+- AVAX: $9.31 | 24h -2.10% | 7d -6.52%
+- LINK: $9.75 | 24h -2.81% | 7d -6.33%
+- ATOM: $2.05 | 24h +6.15% | 7d +5.88% (sole green signal, no theme/news backing)
+- NEAR: $1.49 | 24h -2.74% | 7d -4.20%
+
+### News Digest (per fetch_news 22:03 UTC)
+Empty tape — no ETF flows, no regulatory updates, no L1/L2 upgrades, no exchange news in last 12h.
+
+### Active Themes: NONE
+No active crypto themes. News citations = 0; ≥2 distinct source-types required per theme. No themes activated.
+
+### Forecasts (rule-based)
+BTC: SHORT 0.66 | ETH: SHORT 0.818 | SOL: SHORT 0.867 | AVAX: SHORT 0.826 | LINK: SHORT 0.816 | ATOM: LONG 0.794 | NEAR: SHORT 0.710
+
+### Bucket Decisions
+- ANCHOR (BTC, ETH): Both forecast SHORT; long-only system; 0 trades.
+- THEME: No active themes; ATOM lone long but no mapped theme + zero news citations; 0 trades.
+- GEM (5 scanned): LAB (meme +838% 30d, no catalyst), UB (-30.7% intraday collapse), B (-11.9% intraday), H (no description/news), GWEI (-5.6% 24h, no news). All rejected.
+
+### Result: 0 new positions. Broad crypto correction, empty news tape. Capital preserved.
