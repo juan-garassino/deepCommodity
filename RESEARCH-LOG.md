@@ -123,3 +123,35 @@ BTC: SHORT 0.66 | ETH: SHORT 0.818 | SOL: SHORT 0.867 | AVAX: SHORT 0.826 | LINK
 - GEM (5 scanned): LAB (meme +838% 30d, no catalyst), UB (-30.7% intraday collapse), B (-11.9% intraday), H (no description/news), GWEI (-5.6% 24h, no news). All rejected.
 
 ### Result: 0 new positions. Broad crypto correction, empty news tape. Capital preserved.
+
+## 2026-05-23 22:11 UTC — 22:00-UTC-crypto-pass
+
+## Market Snapshot (per fetch_crypto 22:10 UTC)
+- BTC: $76,673 | 24h +1.15% | 7d -2.02%
+- ETH: $2,115 | 24h +1.94% | 7d -3.07%
+- SOL: $86.28 | 24h +1.54% | 7d -0.33%
+- AVAX: $9.49 | 24h +2.82% | 7d +2.01%
+- LINK: $9.64 | 24h +1.20% | 7d -1.14%
+- ATOM: $2.12 | 24h +1.83% | 7d +3.53%
+- NEAR: $2.40 | 24h +15.06% | 7d +60.69% WATCHLIST
+
+## News: UNAVAILABLE
+OpenAI 429 rate limit; Perplexity key not configured. Zero news citations available.
+
+## Active Themes: NONE
+Cannot satisfy >=2 distinct source-types without news. Theme bucket empty.
+
+## Forecasts (rule-based)
+BTC: flat 0.40 | ETH: flat 0.40 | SOL: flat 0.40 | AVAX: long 0.601 | ATOM: long 0.677 | NEAR: long 1.00
+
+## Bucket Decisions
+ANCHOR (BTC, ETH): flat 0.40 — below 0.55 gate; 0 trades.
+THEME: no active themes; news offline; 0 trades.
+GEM (5 scanned): BSB (no description/news), UB (7d -21%), BEAT (no description/news), LAB (24h -6.8%), TAG (24h -8.4%). All rejected — cannot write 100-char news thesis without news access.
+
+## Anomalies
+NEAR +60.7% 7d / +15.1% 24h: exceptional momentum outlier; catalyst unknown; flag for morning research.
+AVAX +2.0% 7d, ATOM +3.5% 7d: only large_caps with positive weekly returns.
+Broad 24h bounce in negative 7d trend — possible dead-cat rebound pattern.
+
+## Result: 0 new positions. News provider offline; anchors below confidence threshold; no valid gem thesis. Capital preserved.
