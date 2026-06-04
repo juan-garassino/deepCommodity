@@ -155,3 +155,42 @@ AVAX +2.0% 7d, ATOM +3.5% 7d: only large_caps with positive weekly returns.
 Broad 24h bounce in negative 7d trend — possible dead-cat rebound pattern.
 
 ## Result: 0 new positions. News provider offline; anchors below confidence threshold; no valid gem thesis. Capital preserved.
+
+## 2026-06-04 09:10 UTC — thematic snapshot
+
+## Active Themes: NONE
+News provider offline (OpenAI 429; Perplexity key not configured).
+Cannot satisfy >=2 distinct source-types. Theme bucket empty.
+
+## Anchors — top 3 by 7d move (equities)
+- AVGO: $478.62 | 7d +13.40% | vol 1.18M
+- AMD:  $542.32 | 7d +7.61%  | vol 0.56M
+- TSM:  $437.13 | 7d +6.00%  | vol 0.42M
+- MSFT: $427.58 | 7d +2.76%; QQQ $744.21 +1.93%; META $623.05 +1.75%
+- NVDA: $214.86 | 7d +0.03% (flat — rotation out of primary GPU name)
+- SPY:  $754.18 | 7d +0.50% (narrow index breadth)
+- GOOGL: $359.37 | 7d -7.60%; AMZN $249.99 | 7d -5.76% (weakest anchors)
+
+## Anchors — crypto (broad correction)
+- BTC: $63,259 | 24h -5.49% | 7d -13.58% — forecast SHORT 1.0
+- ETH: $1,762  | 24h -6.19% | 7d -11.26% — forecast SHORT 1.0
+- SOL: $68.56  | 24h -8.46% | 7d -15.25% — forecast SHORT 1.0
+- NEAR: $2.31  | 24h -19.43% — flash crash; catalyst unknown
+- All crypto anchors SHORT; long-only system → 0 crypto trades
+
+## Theme Candidates: NONE (news offline; no active themes)
+
+## Hidden Gems (5 scanned — all rejected; news offline)
+- HOME:   $0.037 | mcap $142M | 30d +162% | 24h -21.3% — REJECT: momentum collapse today
+- BEAT:   $1.41  | mcap $406M | 30d +156% | 24h +15.7% — REJECT: no description/news; cannot write thesis
+- BILL:   $0.084 | mcap $206M | 30d +113% | 7d  -4.2%  — REJECT: declining weekly momentum
+- LIT:    $1.55  | mcap $389M | 30d +69.5% | 7d +38.5% — REJECT: no news catalyst; lighter.xyz DEX but cannot source 100-char thesis
+- JTO:    $0.60  | mcap $290M | 30d +55.9% | 7d +24.0% — REJECT: Jito (Solana MEV/staking) strong momentum but zero news citations available
+
+## Anomalies
+- AVGO +13.4% 7d vs NVDA +0.03%: rotation within AI compute from GPU to custom ASIC/networking — Broadcom quietly leading
+- GOOGL -7.6% 7d + AMZN -5.76% 7d: mega-cap divergence; both lagging index; potential antitrust or FX headwind
+- NEAR -19.4% 24h: flash crash, catalyst unknown; largest single-day crypto mover
+- Crypto-equity decoupling deepens: BTC -13.6% 7d while SPY +0.5% — risk-on not flowing to crypto
+- LIT (Lighter DEX) +38.5% 7d despite broad crypto down: anomalous DeFi outlier; watch for news
+- Result: 0 new positions. Preserving capital.
