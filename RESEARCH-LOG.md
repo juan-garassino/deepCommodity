@@ -194,3 +194,40 @@ Cannot satisfy >=2 distinct source-types. Theme bucket empty.
 - Crypto-equity decoupling deepens: BTC -13.6% 7d while SPY +0.5% — risk-on not flowing to crypto
 - LIT (Lighter DEX) +38.5% 7d despite broad crypto down: anomalous DeFi outlier; watch for news
 - Result: 0 new positions. Preserving capital.
+
+## 2026-06-13 12:12 UTC — thematic snapshot
+
+## ACTIVE THEMES (3/3 cap — all ≥2 distinct source-types)
+
+**ai_compute** — $700B hyperscaler AI capex in 2026 (2× 2025) creates sustained demand pull for compute silicon.
+- [1] Microsoft/Google/Amazon/Meta collectively commit $300B+; 2026 total projected $700B — 247wallst.com May 2026
+- [2] NVDA holds 86% AI chip market share, $194B 2026 revenue; 55-60% of AI capex flows to NVDA — fool.com/presenc.ai
+Top candidates: NVDA (lead beneficiary), AMD (MI300/MI400; 7-9% capex allocation), AVGO, TSM
+
+**nuclear** — Data center electricity demand forcing SMR/nuclear ramp for 24/7 baseload power.
+- [1] US data center electricity 4.4% of total demand in 2023 → projected 6.7-12% by 2028 — EIA Jun 2026
+- [2] Amazon announces modular nuclear plant in Washington to power AI/cloud infrastructure — Tom's Hardware Jun 2026
+Top candidates: OKLO (advanced SMR operator), CCJ (uranium supply), BWXT, NNE
+
+**defense** — $961.6B Pentagon FY2026 budget + NATO 5%-GDP-by-2035 commitment sustain multi-year order books.
+- [1] Pentagon FY2026 budget request $961.6B with defense industrial base revitalization focus — breakingdefense.com
+- [2] NATO allies agreed 5% GDP defense spending by 2035; $5.3B common fund for 2026 — nato.int Jul 2025
+Top candidates: LMT, RTX (prime contractors, largest backlogs), NOC, KTOS
+
+## ANCHORS (crypto; equities pre-market at 12:10 UTC)
+1. ETH  $1,676 | 24h +0.45% | 7d +8.44%
+2. SOL    $67.81 | 24h +1.52% | 7d +8.35%
+3. BTC  $63,887 | 24h +0.51% | 7d +5.13%
+
+## THEME CANDIDATES (pre-market — equity prices unavailable until 13:00 UTC)
+ai_compute: NVDA, AMD | nuclear: OKLO, CCJ | defense: LMT, RTX
+
+## HIDDEN GEMS (top 3 from CoinGecko top-250 scan)
+- BTW (Bitway) $153M mcap | +374% 30d | -11% 24h — REJECT: parabolic run + 24h crash = momentum exhaustion, no fundamental thesis
+- VELVET $159M mcap | +264% 30d | -76% 24h — REJECT: single-day -76% crash = active pump/dump pattern
+- LIT (Lighter) $396M mcap | +81% 30d | -1% 24h — RESEARCH: DeFi perps DEX; stable 24h; needs >100-char thesis before gem gate
+
+## ANOMALIES
+- BTC ETF: $4.4B 13-day outflow streak ended Jun 4 with $3M reversal; BTC +5.1% 7d despite ETF headwinds → spot demand absorbing selling
+- Bitcoin ETF $2.6B net outflows YTD as capital rotates into AI equities (CoinDesk) — ai_compute/crypto_proxy divergence
+- LINK outperforming anchors: +10.3% 7d vs BTC +5.1% — possible oracle/DeFi mini-rotation
