@@ -10,7 +10,7 @@ Fires twice daily (13:00 and 21:00 UTC) between the decision routines. Reconcile
 2. `cat AGENT-INSTRUCTIONS.md TRADING-STRATEGY.md deepCommodity/universe/themes.yaml`
 3. `python3 tools/sync_state.py --skip-pull`
 4. Halt check: `if [ -f KILL_SWITCH ]; then python3 tools/notify_telegram.py --topic halt --severity error --message "position-mgmt halted by KILL_SWITCH" --quiet; exit 0; fi`
-4b. **Drawdown breaker**: `python3 tools/check_drawdown.py` — fetches total NAV, compares to the day/week baseline, and ARMS KILL_SWITCH on a ≥4% daily / ≥8% weekly drawdown (fail-closed if NAV unreadable). If it armed the switch, re-run the halt check above and exit.
+4b. **Drawdown breaker**: `python3 tools/check_drawdown.py` — fetches total NAV, compares to the day/week baseline, and ARMS KILL_SWITCH only on a **real measured** ≥4% daily / ≥8% weekly drawdown. If NAV is unreadable it logs + skips (does NOT arm — orders already fail-close on unavailable portfolio). If it armed the switch, re-run the halt check above and exit.
 5. Recover full state:
    ```bash
    tail -n 500 RESEARCH-LOG.md

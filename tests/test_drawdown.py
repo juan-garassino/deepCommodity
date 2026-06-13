@@ -57,12 +57,15 @@ def test_tool_arms_kill_switch_on_breach(tmp_path):
     assert is_armed(root=tmp_path)
 
 
-def test_tool_fails_closed_when_nav_unavailable(tmp_path):
+def test_tool_does_not_arm_when_nav_unavailable(tmp_path):
+    # NAV-unavailable must NOT arm the persistent kill switch: the order path already
+    # fail-closes when the portfolio is unavailable, so arming adds no protection and
+    # would cause spurious permanent halts (e.g. a briefly-unreachable broker).
     def boom():
         raise RuntimeError("broker down")
     armed = check_drawdown.run(
         nav_fetcher=boom, baseline_path=tmp_path / "nav_baseline.json",
         root=tmp_path, now=NOW,
     )
-    assert armed is True
-    assert is_armed(root=tmp_path)
+    assert armed is False
+    assert not is_armed(root=tmp_path)

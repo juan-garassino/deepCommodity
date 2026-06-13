@@ -1,23 +1,21 @@
-# deepCommodity — cron schedule (UTC).
-# Install on the remote with:
-#   crontab -e
-# and paste the entries below (adjusting REPO if your checkout lives elsewhere).
+# deepCommodity — cron schedule (UTC). 24/7 crypto + equities (US hours).
+# Install on the remote with `crontab -e` and paste the entries below
+# (adjust REPO if your checkout lives elsewhere).
+# Crypto executes here on the VPS because Binance geo-blocks the Anthropic cloud
+# egress (HTTP 451) — the VPS must be in a Binance-allowed region.
 # All routines log to $REPO/logs/<routine>.log; failures ping Telegram via run_routine.sh.
 
 REPO=/srv/deepCommodity
 SHELL=/bin/bash
 
-# Heartbeat every 15 min — verifies the loop is alive (no API keys required).
-*/15 * * * *   $REPO/deploy/run_routine.sh heartbeat
+# Decision — every 4h, 24/7. Crypto always; US equities when markets are open.
+0 */4 * * *        $REPO/deploy/run_routine.sh decision
 
-# Hourly research at :07 (offset to avoid rate-limit collisions on the hour).
-7 * * * *      $REPO/deploy/run_routine.sh hourly-research
+# Position management — 4x/day, offset 3h from decision. Drawdown breaker + close/trail; never opens.
+0 3,9,15,21 * * *  $REPO/deploy/run_routine.sh position-mgmt
 
-# Weekday daily decision: 14:00 UTC = ≈30 min after US market open.
-0 14 * * 1-5   $REPO/deploy/run_routine.sh daily-decision
+# Weekly review — Sunday 18:00 UTC.
+0 18 * * 0         $REPO/deploy/run_routine.sh weekly-review
 
-# Crypto-only second pass: 22:00 UTC daily.
-0 22 * * *     $REPO/deploy/run_routine.sh daily-decision
-
-# Weekly review: Sunday 18:00 UTC.
-0 18 * * 0     $REPO/deploy/run_routine.sh weekly-review
+# (Optional) Heartbeat liveness canary — uncomment if you want an independent alive-check.
+# 3 * * * *        $REPO/deploy/run_routine.sh heartbeat
