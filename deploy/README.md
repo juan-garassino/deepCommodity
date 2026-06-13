@@ -2,12 +2,21 @@
 
 This directory contains everything needed to run the deepCommodity routines unsupervised on a Linux VPS, with Telegram status notifications.
 
+> **Why a VPS (not the Anthropic cloud routines):** Binance geo-blocks the Anthropic cloud egress
+> IP (HTTP 451), so crypto can't execute from cloud routines. The VPS must be in a **Binance-allowed
+> region**. The VPS also makes the `KILL_SWITCH` a persistent local file every cron run sees (the
+> cloud's stateless clones can't propagate it). **If you run the VPS, disable the cloud trading
+> routines** (`dc decision`, `dc position-mgmt`) so the two don't double-execute.
+
+Routines run from the prompts in `.claude/routines/managed/`. Active schedule (UTC): `decision`
+every 4h, `position-mgmt` at 03/09/15/21, `weekly-review` Sunday 18:00 — see `crontab.template`.
+
 ## What "unsupervised" means here
 
-Each routine is a markdown prompt under `.claude/routines/`. A scheduler (cron or systemd) calls `deploy/run_routine.sh <name>`, which:
+Each routine is a markdown prompt under `.claude/routines/managed/`. A scheduler (cron or systemd) calls `deploy/run_routine.sh <name>`, which:
 
 1. Loads `.env` (API keys, Telegram token).
-2. Runs `claude -p "$(cat .claude/routines/<name>.md)" --permission-mode acceptEdits` headless.
+2. Runs `claude -p "$(cat .claude/routines/managed/<name>.md)" --permission-mode acceptEdits` headless.
 3. Streams stdout+stderr to `logs/<name>.log`.
 4. On non-zero exit, pings Telegram with the last 5 log lines so cron silence never masks a broken loop.
 
@@ -15,7 +24,7 @@ Claude Code itself is the agent — there is no daemon, no event loop, no long-r
 
 ## Prereqs
 
-- A Linux VPS (Ubuntu 22.04 or Debian 12 tested), 1 vCPU + 1 GB RAM is enough for the rule-based forecaster path. Add 4 GB RAM if you want CPU inference of the trained transformer.
+- A Linux VPS (Ubuntu 22.04 or Debian 12 tested) **in a Binance-allowed region** (verify `curl -s -o /dev/null -w '%{http_code}' https://api.binance.com/api/v3/ping` returns `200`, not `451`). 1 vCPU + 1 GB RAM is enough for the rule-based forecaster path. Add 4 GB RAM if you want CPU inference of the trained transformer.
 - An Anthropic API key (Claude Code uses your account).
 - A Telegram bot token + your chat ID (see `tools/notify_telegram.py` docstring).
 - API keys for whichever brokers/sources you need: Binance / Bitfinex / Alpaca / Perplexity / FRED.
@@ -65,6 +74,11 @@ sudo systemctl enable --now deepcommodity-heartbeat.timer
 
 ## Scheduling: systemd vs cron
 
+> **Note:** the new 24/7 schedule uses routines `decision`, `position-mgmt`, `weekly-review`.
+> `crontab.template` is already updated for these — **cron is the quickest path**. The bundled
+> `deploy/systemd/*` unit files still carry the legacy routine names (heartbeat/hourly-research/
+> daily-decision); regenerate them for the new names if you prefer systemd.
+
 Both are wired. **Prefer systemd** — better state visibility (`systemctl status …`), failed-run accounting, sandboxing.
 
 ### systemd (recommended)
@@ -97,11 +111,11 @@ Three layers, in increasing severity:
 
 | Action | Effect |
 |---|---|
-| `touch /srv/deepCommodity/KILL_SWITCH` | All `place_order.py` calls fail closed; research routines still run but log `halted` |
-| `sudo systemctl stop deepcommodity-daily-decision.timer` | Decision routine no longer fires; research/heartbeat continue |
-| `sudo systemctl disable --now 'deepcommodity-*.timer'` | Full stop |
+| Set `DC_HALT=true` in `.env` (or `TRADING_MODE=halt`) | Every order fail-closes on the next run — the reliable, fastest lever; no file, no restart |
+| `touch /srv/deepCommodity/KILL_SWITCH` | Same effect via the repo-root file; persistent across cron runs on the VPS |
+| `crontab -e` and comment the lines (or `sudo systemctl disable --now 'deepcommodity-*.timer'`) | Stop the schedule entirely |
 
-The KILL_SWITCH file is the operator's first lever — instantaneous, no service restart needed. The circuit breaker auto-creates it when daily/weekly drawdown thresholds are breached, and pings Telegram when it does.
+On the VPS, `KILL_SWITCH` is a persistent local file, so every cron run sees it (unlike the cloud). The drawdown breaker (`tools/check_drawdown.py`, run by `position-mgmt`) auto-arms it only on a **real measured** −4% daily / −8% weekly drawdown and pings Telegram — it no longer arms merely because NAV is briefly unreadable (orders fail-close on that independently).
 
 ## Telegram
 

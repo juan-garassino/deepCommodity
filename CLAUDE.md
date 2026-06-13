@@ -123,6 +123,14 @@ The paste-ready prompts are in `.claude/routines/managed/` (`decision.md`, `posi
 `weekly-review.md`). The schedule skill (`/schedule`) creates/updates routines; secrets + network
 allowlist live in the cloud `deepCommodity` environment.
 
+**Deployment reality (2026-06-13):** Binance geo-blocks the Anthropic cloud egress (HTTP 451), so
+**crypto cannot execute from cloud routines**. Crypto runs on the **VPS** (`deploy/`) in a
+Binance-allowed region — Binance reachable, `KILL_SWITCH` is a persistent local file, local `.env`.
+If the VPS runs the trading routines, **disable the cloud trading routines** to avoid double-execution.
+Cloud routines remain usable for research / equities-paper (non-Binance signal hosts are reachable).
+The reliable cloud halt is the `DC_HALT` env var (the gitignored `KILL_SWITCH` file does not propagate
+across stateless cloud runs).
+
 ## Gates are code-enforced (not prompt-trust)
 
 As of the live-readiness pass, the risk gates live in **`deepCommodity/guardrails/preflight.py`** — the single chokepoint every order passes through, fed by an authoritative broker snapshot (`deepCommodity/execution/portfolio.py`). `place_order.py` and `risk_check.py` are thin wrappers over it, so they cannot diverge. The position/sector/gross-leverage/cash-floor/daily-cap limits, the finiteness checks, the halt check, and the live-authorization gate are all enforced in code and **fail closed** (a broker that can't report state blocks the trade — no fabricated portfolio). The rules below are still the operating contract, but they are now backstopped by code rather than relying on the agent to remember them.

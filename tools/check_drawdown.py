@@ -39,9 +39,14 @@ def run(nav_fetcher, baseline_path: Path, root: Path, now: datetime | None = Non
     baseline_path = Path(baseline_path)
     try:
         nav = float(nav_fetcher())
-    except Exception as e:  # noqa: BLE001 — fail closed
-        arm_kill_switch(f"drawdown check could not read NAV: {e}", root=root)
-        return True
+    except Exception as e:  # noqa: BLE001
+        # NAV unavailable: do NOT arm the persistent (manual-clear) kill switch. The
+        # order path already fail-closes when the portfolio is unavailable, so trading
+        # is halted for this condition regardless — arming here adds no protection and
+        # causes spurious permanent halts (e.g. a briefly-unreachable broker). Alert + skip.
+        print(f"check_drawdown: NAV unavailable ({e}); not arming "
+              "(orders independently fail-closed)", file=sys.stderr)
+        return False
 
     try:
         baseline = json.loads(baseline_path.read_text())
