@@ -1,5 +1,10 @@
 #!/usr/bin/env python
-"""Pre-trade gate. Returns OK or BLOCKED: <reason>; non-zero exit on block."""
+"""Pre-trade gate. Thin wrapper over the single preflight() chokepoint.
+
+Exit: 0 = OK | 1 = blocked or portfolio unavailable | 2 = halt.
+Fail-closed: a broker that can't report state blocks the trade (never assumes a
+clean book). place_order re-runs the same gate before submitting.
+"""
 from __future__ import annotations
 
 import argparse
@@ -10,32 +15,44 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-from deepCommodity.guardrails.kill_switch import is_armed  # noqa: E402
-from deepCommodity.guardrails.limits import (  # noqa: E402
-    OrderProposal,
-    PortfolioSnapshot,
-    check_limits,
+from deepCommodity.execution.broker import get_broker  # noqa: E402
+from deepCommodity.execution.portfolio import (  # noqa: E402
+    BrokerPortfolioProvider,
+    PortfolioUnavailable,
 )
+from deepCommodity.guardrails.limits import OrderProposal  # noqa: E402
+from deepCommodity.guardrails.preflight import preflight  # noqa: E402
+from deepCommodity.universe import Universe, classify_symbol  # noqa: E402
 
 
-def _portfolio_for(asset_class: str) -> PortfolioSnapshot:
-    """Best-effort live portfolio. Falls back to a 10k paper portfolio if broker unavailable."""
-    try:
-        from deepCommodity.execution import get_broker
-        b = get_broker(asset_class)  # type: ignore[arg-type]
-        nav = b.portfolio_nav()
-        positions = b.positions()
-        # heuristic cash: NAV minus sum of positions (broker-specific in reality)
-        cash = max(0.0, nav - sum(positions.values()))
-        return PortfolioSnapshot(
-            nav_usd=nav, cash_usd=cash, positions=positions,
-            sector_notional={}, new_positions_today=0,
-        )
-    except Exception:
-        return PortfolioSnapshot(
-            nav_usd=10_000.0, cash_usd=10_000.0, positions={},
-            sector_notional={}, new_positions_today=0,
-        )
+def _home(home: Path | None = None) -> Path:
+    return Path(home or os.getenv("DC_HOME") or ROOT)
+
+
+def _make_provider(asset_class: str, home: Path | None):
+    broker = get_broker(asset_class)
+    return BrokerPortfolioProvider(
+        broker, Universe.load(), trade_log_path=_home(home) / "TRADE-LOG.md"
+    )
+
+
+def evaluate(*, symbol, side, qty, price, asset_class, sector=None,
+             provider=None, home: Path | None = None) -> tuple[int, str]:
+    symbol = symbol.strip().upper()  # canonical key (match broker position keys)
+    if provider is None:
+        try:
+            provider = _make_provider(asset_class, home)
+        except Exception as e:  # noqa: BLE001
+            return 1, f"BLOCKED: portfolio unavailable ({e})"
+    bucket, derived_sector = classify_symbol(Universe.load(), symbol)
+    proposal = OrderProposal(
+        symbol=symbol, side=side, qty=qty, notional_usd=qty * price,
+        sector=sector or derived_sector, bucket=bucket,
+    )
+    decision = preflight(proposal, provider, root=_home(home))
+    if decision.allow:
+        return 0, decision.reason
+    return (2 if decision.code == "halt" else 1), decision.reason
 
 
 def main() -> None:
@@ -47,19 +64,12 @@ def main() -> None:
     p.add_argument("--asset-class", required=True, choices=["crypto", "equity"])
     p.add_argument("--sector", default=None)
     args = p.parse_args()
-
-    if is_armed():
-        print("BLOCKED: KILL_SWITCH armed")
-        sys.exit(2)
-
-    proposal = OrderProposal(
-        symbol=args.symbol, side=args.side, qty=args.qty,
-        notional_usd=args.qty * args.price, sector=args.sector,
+    code, reason = evaluate(
+        symbol=args.symbol, side=args.side, qty=args.qty, price=args.price,
+        asset_class=args.asset_class, sector=args.sector,
     )
-    portfolio = _portfolio_for(args.asset_class)
-    ok, reason = check_limits(proposal, portfolio)
     print(reason)
-    sys.exit(0 if ok else 1)
+    sys.exit(code)
 
 
 if __name__ == "__main__":

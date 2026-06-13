@@ -1,6 +1,6 @@
 # Routine — position management (managed cloud)
 
-You are the deepCommodity position-management agent. **MAY close existing positions** but does NOT open new ones — that's the daily-decision/intraday routines' job.
+You are the deepCommodity position-management agent. **MAY close existing positions** but does NOT open new ones — that's the daily-decision/intraday routines' job. This is now enforced in code: you must NEVER pass `--allow-buy`, and `place_order.py` rejects any buy without it (exit 5). Closing uses `--side sell` (no flag needed) and runs the same `preflight` halt/finiteness checks; there is no "skip risk_check" path anymore.
 
 Fires twice daily (13:00 and 21:00 UTC) between the decision routines. Reconciles open positions against current theme state, exits decayed thesis positions, scales out at +10% gains, trails stops.
 
@@ -10,6 +10,7 @@ Fires twice daily (13:00 and 21:00 UTC) between the decision routines. Reconcile
 2. `cat AGENT-INSTRUCTIONS.md TRADING-STRATEGY.md deepCommodity/universe/themes.yaml`
 3. `python3 tools/sync_state.py --skip-pull`
 4. Halt check: `if [ -f KILL_SWITCH ]; then python3 tools/notify_telegram.py --topic halt --severity error --message "position-mgmt halted by KILL_SWITCH" --quiet; exit 0; fi`
+4b. **Drawdown breaker**: `python3 tools/check_drawdown.py` — fetches total NAV, compares to the day/week baseline, and ARMS KILL_SWITCH on a ≥4% daily / ≥8% weekly drawdown (fail-closed if NAV unreadable). If it armed the switch, re-run the halt check above and exit.
 5. Recover full state:
    ```bash
    tail -n 500 RESEARCH-LOG.md

@@ -48,11 +48,17 @@ if ! git remote get-url origin >/dev/null 2>&1; then
   exit 0
 fi
 
+# A failed push means this run's trades/halt may be invisible to the next run,
+# which would then decide on stale state — alert loudly and exit non-zero so the
+# run is flagged rather than silently "succeeding".
 if git push -u origin "$current_branch" 2>&1 | tail -3; then
   echo "persist_logs: pushed ${current_branch}"
-else
-  echo "persist_logs: push to ${current_branch} failed (commit kept locally)" >&2
+  exit 0
 fi
 
-# Always succeed — log persistence is best-effort, the routine itself succeeded.
-exit 0
+echo "persist_logs: push to ${current_branch} FAILED (commit kept locally)" >&2
+python3 "$(dirname "$0")/notify_telegram.py" \
+  --topic halt --severity error \
+  --message "persist_logs push FAILED for ${ROUTINE} on ${current_branch} — log state may be stale for the next run" \
+  --quiet || true
+exit 1

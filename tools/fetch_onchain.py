@@ -45,7 +45,8 @@ def fetch_cryptoquant(asset: str, metric: str, window: int) -> dict | None:
                                  "exchange": "all_exchange"},
                          timeout=20)
         if r.status_code != 200:
-            return {"error": f"cryptoquant {r.status_code}: {r.text[:120]}"}
+            # never echo raw upstream body into agent-facing JSON (injection channel)
+            return {"error": "cryptoquant_upstream_error", "status": r.status_code}
         return r.json()
     except Exception as e:  # noqa: BLE001
         return {"error": f"cryptoquant fetch failed: {e}"}

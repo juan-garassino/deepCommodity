@@ -2,6 +2,8 @@
 
 Guidance for Claude Code working in this repository.
 
+> **GCP migration note (2026-06-07):** Cloud target if/when deployed: **`garassino-ml`** / `europe-west1` (show-and-destroy under €25/mo workspace cap). No deploy infra yet — runs locally. See workspace root `CLAUDE.md` § "GCP architecture".
+
 ## What this is
 
 `deepCommodity` is an **agentic quant** trader. Claude Code itself is the agent — there are no agent classes in Python. Routines on `claude.ai/code/routines` (cron-fired headless sessions) read state from markdown logs, call tools that fetch data and place orders, and write results back. The LLM is the alpha generator; tools validate.
@@ -25,14 +27,14 @@ See `AGENTIC-QUANT.md` for the architecture rationale. See `AGENT-INSTRUCTIONS.m
 ├── .env.sample                      copy → .env (gitignored)
 ├── deepCommodity/
 │   ├── universe/                    themes.yaml + Universe loader
-│   ├── execution/                   Binance + Bitfinex + Alpaca adapters
-│   ├── guardrails/                  KILL_SWITCH, limits, sanitize, circuit breaker
+│   ├── execution/                   adapters + portfolio.py (authoritative broker snapshot)
+│   ├── guardrails/                  preflight (the chokepoint), limits, kill_switch/halt, sanitize, circuit breaker
 │   ├── model/                       LSTM + price/orderflow/fused transformers
 │   ├── backtest/                    walk-forward engine reusing live risk gates
 │   ├── manager/                     BigQuery sink + plotting
 │   └── sourcing/                    legacy data fetchers
 ├── tools/                           CLI scripts the agent invokes
-├── tests/                           147 tests, mocked
+├── tests/                           226 tests, mocked (MockBroker/MockPortfolioProvider in _mocks.py)
 ├── serving/                         FastAPI inference service + Dockerfile
 ├── deploy/                          VPS deploy: cron, systemd, install_remote.sh
 ├── notebooks/train_on_colab.ipynb   GPU training entry point
@@ -48,9 +50,9 @@ See `AGENTIC-QUANT.md` for the architecture rationale. See `AGENT-INSTRUCTIONS.m
 |---|---|---|---|
 | **Anchor** | static list (BTC, ETH, SPY, QQQ, AAPL, MSFT, NVDA, GOOGL, META, AMZN, BRK.B) | forecast confidence ≥ 0.55 | 1 |
 | **Theme** | symbols pulled from `themes.yaml` for **active themes** the agent identifies in news | ≥ 2 distinct source-types AND forecast confidence ≥ 0.50 | 2 |
-| **Hidden gem** | dynamic CoinGecko top 250 scan via `tools/scan_hidden_gems.py` | rank ≥ 0.65 AND agent thesis ≥ 100 chars citing news | 1 |
+| **Hidden gem** | dynamic CoinGecko top 250 scan via `tools/scan_hidden_gems.py` | rank ≥ 0.65 AND forecast confidence ≥ 0.55 AND agent thesis ≥ 100 chars citing news | 1 |
 
-**Total cap: 3 new positions / day.** Thesis is required and stored in TRADE-LOG.md `--reason` (free / 50 / 100 chars by bucket).
+**Total cap: 3 new positions / day** (also per-bucket: anchor 1 / theme 2 / gem 1) — **the daily + per-bucket caps, position/sector/leverage/cash limits are code-enforced in `check_limits`** against real broker fills. The forecast-confidence floors and thesis-length/source-count requirements remain routine-enforced (the agent obeys them; they are not in `preflight`). Thesis is stored in TRADE-LOG.md `--reason` (free / 50 / 100 chars by bucket).
 
 ## The six-stream signal layer
 
@@ -87,8 +89,9 @@ All news-text fetchers pass through `deepCommodity/guardrails/sanitize.sanitize_
 | `tools/fetch_fedwatch.py` | implied Fed move |
 | `tools/rank_smallcaps.py --input …` | momentum × log-inv-mcap × volume scoring (gem lane only) |
 | `tools/forecast.py --model {rule-based\|price\|orderflow\|news\|fused\|ensemble\|api}` | direction + confidence per symbol |
-| `tools/risk_check.py …` | pre-trade gate; exit 0 = OK |
-| `tools/place_order.py …` | broker dispatch + journals + Telegram |
+| `tools/risk_check.py …` | pre-trade gate (thin wrapper over `preflight`); exit 0 = OK / 1 = blocked / 2 = halt |
+| `tools/place_order.py …` | gated broker dispatch (needs `--allow-buy` to open); journals + Telegram |
+| `tools/check_drawdown.py` | drawdown breaker (run by position-mgmt): arms KILL_SWITCH on −4%d/−8%w; fail-closed |
 | `tools/notify_telegram.py` | best-effort Telegram ping (silent if env unset) |
 | `tools/persist_logs.sh <routine>` | commit log changes to current claude/<adj-noun> branch |
 | `tools/backtest.py --bars-dir …` | replay historical bars through forecaster + risk gates |
@@ -113,27 +116,35 @@ Daily total stays under your 15/day budget.
 
 The paste-ready prompts are in `.claude/routines/managed/`. The schedule skill (`/schedule`) creates routines; tokens for API triggers are managed in the web UI.
 
+## Gates are code-enforced (not prompt-trust)
+
+As of the live-readiness pass, the risk gates live in **`deepCommodity/guardrails/preflight.py`** — the single chokepoint every order passes through, fed by an authoritative broker snapshot (`deepCommodity/execution/portfolio.py`). `place_order.py` and `risk_check.py` are thin wrappers over it, so they cannot diverge. The position/sector/gross-leverage/cash-floor/daily-cap limits, the finiteness checks, the halt check, and the live-authorization gate are all enforced in code and **fail closed** (a broker that can't report state blocks the trade — no fabricated portfolio). The rules below are still the operating contract, but they are now backstopped by code rather than relying on the agent to remember them.
+
 ## Hard rules (every routine obeys)
 
-1. **Never** call `place_order.py` without `risk_check.py` exiting 0 first.
-2. **Never** call `place_order.py` if `KILL_SWITCH` exists.
+1. **Never** call `place_order.py` without `risk_check.py` exiting 0 first. (`place_order` re-runs the same `preflight` in-process regardless.)
+2. **Never** call `place_order.py` if halted. Halt = `KILL_SWITCH` file OR `DC_HALT=true` OR `TRADING_MODE=halt`; the gate fails closed if it can't confirm.
 3. Use `tools/journal.py` for logs — append-only.
 4. `TRADING-STRATEGY.md` and `themes.yaml` are sources of truth. Edit only via weekly-review proposed-edits + manual merge.
-5. Live trading requires both `TRADING_MODE=live` AND `DAILY_DECISION_AUTHORIZE_LIVE=true` AND `--confirm-live` flag.
+5. Live trading requires **all** of `TRADING_MODE=live` AND `DAILY_DECISION_AUTHORIZE_LIVE=true` AND the `--confirm-live` flag AND account NAV ≤ `DC_MAX_NAV_USD` — all code-enforced in `place_order.py`.
 6. Theme is active only with ≥ 2 distinct **source-types** of evidence. Two news bullets = 1 source-type, doesn't qualify.
 7. Hidden gem buys require thesis ≥ 100 chars citing news. "high momentum" doesn't count.
-8. Auto-heal pip install for ccxt/alpaca-py is allowed; arbitrary pip install is denied.
+8. Opening/adding a position requires the `--allow-buy` flag (code-enforced). The position-mgmt routine never passes it, so it structurally **cannot open**.
+9. Auto-heal pip install for ccxt/alpaca-py is allowed; arbitrary pip install is denied.
 
 ## Environment
 
 Copy `.env.sample` → `.env`. The `.gitignore` is fail-closed for credentials (`.env`, `.env.*`, `*.key`, `*.pem`, `secrets.*`, `service-account*.json`, `id_rsa*`, `.netrc`). Optional pre-commit hook for secret scanning: `git config core.hooksPath .githooks`.
 
 Environment variables (free unless noted):
-- `TRADING_MODE` — `paper` (default) or `live`
-- `DAILY_DECISION_AUTHORIZE_LIVE` — second gate; `true` required for live
-- `BINANCE_API_KEY` / `_SECRET` / `_TESTNET` (testnet free)
-- `BITFINEX_API_KEY` / `_SECRET` / `_PAPER` (alternative crypto venue)
-- `ALPACA_API_KEY` / `_SECRET` / `_PAPER` — must be **paper-trading keys**, not live (different keypair)
+- `TRADING_MODE` — `paper` (default), `live`, or `halt` (emergency stop)
+- `DAILY_DECISION_AUTHORIZE_LIVE` — second live gate; `true` required for live
+- `DC_HALT` — out-of-band kill switch that reaches cloud routines; `true` halts all orders next run
+- `DC_MAX_NAV_USD` — code-enforced ceiling on NAV traded live (keep small for the first live window)
+- `BINANCE_API_KEY` / `_SECRET` / `_TESTNET` (testnet free; live requires `_TESTNET=false`)
+- `BITFINEX_API_KEY` / `_SECRET` / `BITFINEX_SANDBOX_CONFIRMED` — Bitfinex is **disabled in the live path** (audit B7); use Binance for crypto
+- `ALPACA_API_KEY` / `_SECRET` / `_PAPER` — must be **paper-trading keys**, not live (different keypair); live requires `_PAPER=false`
+- `DC_API_KEY` / `DC_ALLOW_OPEN` — serving auth is fail-closed; unset key ⇒ 503 unless `DC_ALLOW_OPEN=true` (local dev)
 - `OPENAI_API_KEY` — primary news provider (search-preview model, ~$0.04/call)
 - `PERPLEXITY_API_KEY` — fallback news provider (optional)
 - `FINNHUB_API_KEY` — earnings calendar (free, 60/min) — https://finnhub.io/register
@@ -153,7 +164,10 @@ Network allowlist must include: `api.openai.com`, `paper-api.alpaca.markets`, `d
 
 ```bash
 # tests
-make dc-test                      # 147 passing
+make dc-test
+
+# go-live gate: full suite + paper smoke (must be clean before flipping live)
+make dc-preflight-live
 
 # end-to-end smoke against real OpenAI + Alpaca paper
 make dc-smoke-paper
@@ -165,9 +179,11 @@ make dc-train-all OUTPUT_DIR=/content/drive/MyDrive/dc_outputs
 # backtest (no API keys)
 python tools/backtest.py --bars-dir data/bars/
 
-# Halt
-touch KILL_SWITCH                # blocks all orders, all routines
+# Halt (local)
+touch KILL_SWITCH                # blocks all orders, all routines (repo-root anchored)
 rm KILL_SWITCH                   # resume
+# Halt (cloud routines): set DC_HALT=true or TRADING_MODE=halt in the cloud env —
+# reaches the next headless run regardless of git/branch state. Gate fails closed.
 
 # Forecaster router (Phase 9)
 python tools/forecast.py --input crypto.json --model rule-based   # default
@@ -201,9 +217,9 @@ Workflow: train on Colab → save to Drive → rclone-sync into `MODELS_HOST_DIR
 - All news-text reads through `sanitize_news` before reaching the agent.
 - Routines use `persist_logs.sh` for git commits (no manual commits in routines).
 - Logs are append-only; corrections go in a new dated entry.
-- Per-position cap is 5% NAV; sector cap 30%; cash floor 10%.
-- Daily DD breaker 4%, weekly 8% — auto-arm KILL_SWITCH.
-- Stop-loss -8%, take-profit +20%, max gross leverage 1.0×.
+- Per-position cap is 5% NAV (existing holding counts); sector cap 30%; cash floor 10%; gross leverage ≤ 1.0× — all enforced in `check_limits`.
+- Daily DD breaker 4%, weekly 8% — `tools/check_drawdown.py` arms KILL_SWITCH (wired; fail-closed if NAV unreadable).
+- Stop-loss -8%, take-profit +20%.
 
 ## Money math
 

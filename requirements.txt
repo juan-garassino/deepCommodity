@@ -1,48 +1,51 @@
+# Pinned for a money-handling system — a surprise upgrade of ccxt/alpaca/pydantic
+# must never enter a process holding broker credentials silently. Bump deliberately.
+
 # packaging
-pip>=9
-setuptools>=26
-twine
-wheel>=0.29
+pip>=23
+setuptools>=68
+wheel>=0.41
 
-# data science
-numpy
-pandas
-scikit-learn
-matplotlib
+# core / data
+numpy==1.26.4
+pandas==2.2.3
+scikit-learn==1.7.2
+scipy==1.13.1
+matplotlib==3.10.7
+statsmodels==0.14.4
+pmdarima==2.0.4
 
-# tests/linter
-black
-coverage
-flake8
-pytest
-yapf
-
-# API
-gcsfs
-google-cloud-storage
-mlflow
-s3fs
-
-# utilities
-six>=1.14
-joblib
-memoized-property
-termcolor
-
-pycoingecko
-statsmodels
-pmdarima
+# tests / lint
+pytest==8.3.3
+pytest-asyncio==0.24.0
+coverage==7.6.1
+black==24.8.0
+flake8==7.1.1
 
 # brokers
-ccxt
-alpaca-py
+ccxt==4.5.52
+alpaca-py==0.43.4
 
 # free-api signal sources
-feedparser
-yfinance
+feedparser==6.0.11
+yfinance==0.2.66
+pycoingecko==3.1.0
+
+# http (used by every fetcher + forecast --model api; was an implicit transitive dep)
+requests==2.32.5
+
+# serving (FastAPI inference service)
+fastapi==0.116.1
+uvicorn==0.35.0
 
 # agent tooling
-python-dotenv
-pyyaml
-tenacity
-pydantic
+python-dotenv==1.1.1
+pyyaml==6.0.3
+tenacity==9.1.2
+pydantic==2.12.3
+
+# utilities
+six==1.17.0
+joblib==1.5.2
+memoized-property==1.0.3
+termcolor==2.5.0

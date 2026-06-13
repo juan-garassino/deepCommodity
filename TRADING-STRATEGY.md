@@ -40,18 +40,23 @@ volume_weight: 0.2           # 24h volume / 30d avg volume
 - **Cash floor:** ≥10% NAV always uninvested.
 - **Sizing formula:** `position_value = min(per_position_cap, conviction × tier_sleeve_remaining)` where `conviction ∈ [0.3, 1.0]` from forecast confidence.
 
-## Risk limits (enforced by `risk_check.py`; hardcoded ceilings in `deepCommodity/guardrails/limits.py`)
+## Risk limits (code-enforced through `preflight` → `check_limits`; ceilings in `deepCommodity/guardrails/limits.py`)
+
+Every order — from `risk_check.py` or `place_order.py` — passes the SAME `preflight()` chokepoint, fed by an authoritative broker snapshot (`execution/portfolio.py`). The gate **fails closed**: a broker that can't report state blocks the trade. The per-position cap counts the existing holding (no pyramiding); the daily cap is counted from real fills (per-bucket + total).
 
 | Limit | Value | Enforced by |
 |-------|-------|-------------|
-| Max single position % NAV | 5% | risk_check |
-| Max sector concentration % NAV | 30% | risk_check |
-| Max new positions per day | 3 | risk_check |
-| Max daily drawdown before halt | 4% | circuit_breaker |
-| Max weekly drawdown before halt | 8% | circuit_breaker |
-| Stop-loss per position | -8% from entry | place_order (OCO) |
-| Take-profit per position | +20% from entry | place_order (OCO) |
-| Max gross leverage | 1.0× (no leverage) | risk_check + adapter |
+| Max single position % NAV (incl. existing holding) | 5% | check_limits |
+| Max sector concentration % NAV | 30% | check_limits |
+| Max new positions per day (total) | 3 | check_limits (from real fills) |
+| Per-bucket daily cap | anchor 1 / theme 2 / gem 1 | check_limits |
+| Max gross leverage | 1.0× (no leverage) | check_limits |
+| Cash floor | ≥10% NAV | check_limits |
+| Max daily drawdown before halt | 4% | circuit_breaker via `tools/check_drawdown.py` (arms KILL_SWITCH) |
+| Max weekly drawdown before halt | 8% | circuit_breaker via `tools/check_drawdown.py` |
+| Live NAV ceiling | `DC_MAX_NAV_USD` | place_order (live only) |
+| Stop-loss per position | -8% from entry | place_order |
+| Take-profit per position | +20% from entry | place_order |
 
 ## Cadence
 
@@ -62,5 +67,6 @@ volume_weight: 0.2           # 24h volume / 30d avg volume
 
 ## Mode
 
-- `TRADING_MODE` env: `paper` | `live`. Default `paper`.
-- Live orders additionally require `DAILY_DECISION_AUTHORIZE_LIVE=true` AND `--confirm-live` flag.
+- `TRADING_MODE` env: `paper` | `live` | `halt`. Default `paper`.
+- Live orders additionally require `DAILY_DECISION_AUTHORIZE_LIVE=true` AND `--confirm-live` flag AND NAV ≤ `DC_MAX_NAV_USD` — all code-enforced.
+- Emergency stop: `DC_HALT=true` or `TRADING_MODE=halt` (reaches cloud routines), or a repo-root `KILL_SWITCH` file (local). The halt check fails closed.

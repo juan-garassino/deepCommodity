@@ -19,6 +19,7 @@ class OrderRequest:
     limit_price: float | None = None
     stop_loss_pct: float | None = None
     take_profit_pct: float | None = None
+    client_order_id: str | None = None
 
 
 @dataclass
@@ -45,11 +46,19 @@ class BrokerAdapter(ABC):
     @abstractmethod
     def submit(self, req: OrderRequest) -> OrderResult: ...
 
-    @abstractmethod
-    def portfolio_nav(self) -> float: ...
+    # ---- normalized account state (all USD) --------------------------------
+    # Implementations must raise on any failure — the caller fails closed.
 
-    @abstractmethod
-    def positions(self) -> dict[str, float]: ...
+    def account_state(self) -> tuple[float, dict[str, float], float]:
+        """Return (nav_usd, positions_usd, cash_usd) from ONE consistent read.
+
+        positions_usd is {symbol: USD notional}. Raise on any failure.
+        """
+        raise NotImplementedError
+
+    def reference_price(self, symbol: str) -> float:
+        """Current reference (mark/last) price in USD for sizing validation."""
+        raise NotImplementedError
 
 
 def get_broker(asset_class: AssetClass) -> BrokerAdapter:

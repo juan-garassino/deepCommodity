@@ -23,15 +23,13 @@ from deepCommodity.guardrails.limits import (
 
 # ---- kill switch -----------------------------------------------------------
 
-def test_kill_switch_default_unarmed(tmp_path, monkeypatch):
-    monkeypatch.chdir(tmp_path)
-    assert is_armed() is False
+def test_kill_switch_default_unarmed(tmp_path):
+    assert is_armed(root=tmp_path) is False
 
 
-def test_kill_switch_arms_and_reads(tmp_path, monkeypatch):
-    monkeypatch.chdir(tmp_path)
-    arm_kill_switch("synthetic test")
-    assert is_armed() is True
+def test_kill_switch_arms_and_reads(tmp_path):
+    arm_kill_switch("synthetic test", root=tmp_path)
+    assert is_armed(root=tmp_path) is True
     body = (tmp_path / "KILL_SWITCH").read_text()
     assert "synthetic test" in body
 
@@ -87,7 +85,7 @@ def _portfolio(nav=10_000.0, cash=10_000.0, **kw):
     return PortfolioSnapshot(
         nav_usd=nav, cash_usd=cash, positions=kw.get("positions", {}),
         sector_notional=kw.get("sector_notional", {}),
-        new_positions_today=kw.get("new_positions_today", 0),
+        new_positions_today=kw.get("new_positions_today", {}),
     )
 
 
@@ -114,7 +112,7 @@ def test_sector_concentration_blocks():
 
 def test_max_new_positions_blocks_third():
     prop = OrderProposal(symbol="NEW", side="buy", qty=1, notional_usd=100)
-    port = _portfolio(new_positions_today=HARD_LIMITS["max_new_positions_per_day"])
+    port = _portfolio(new_positions_today={"anchor": 1, "theme": 2})  # total 3
     ok, reason = check_limits(prop, port)
     assert not ok
     assert "new positions" in reason
@@ -124,7 +122,7 @@ def test_existing_position_not_counted_as_new():
     """Adding to a position you already hold does not consume a new-position slot."""
     prop = OrderProposal(symbol="BTC", side="buy", qty=1, notional_usd=100)
     port = _portfolio(positions={"BTC": 50},
-                      new_positions_today=HARD_LIMITS["max_new_positions_per_day"])
+                      new_positions_today={"anchor": 1, "theme": 2})  # total 3
     ok, _ = check_limits(prop, port)
     assert ok
 
