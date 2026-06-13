@@ -26,7 +26,7 @@ if [ -f "$ENV_FILE" ]; then
   set -a; . "$ENV_FILE"; set +a
 fi
 
-PROMPT_FILE=".claude/routines/${ROUTINE}.md"
+PROMPT_FILE=".claude/routines/managed/${ROUTINE}.md"
 if [ ! -f "$PROMPT_FILE" ]; then
   echo "routine prompt not found: $PROMPT_FILE" >&2
   exit 3

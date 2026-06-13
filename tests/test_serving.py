@@ -16,8 +16,9 @@ TestClient = fastapi_testclient.TestClient
 
 @pytest.fixture
 def client(monkeypatch, tmp_path):
-    # Open mode (no API key) for these tests
+    # Open mode (no API key) for these tests — now an explicit opt-in (fail-closed default)
     monkeypatch.delenv("DC_API_KEY", raising=False)
+    monkeypatch.setenv("DC_ALLOW_OPEN", "true")
     monkeypatch.setenv("MODELS_DIR", str(tmp_path))   # empty dir = no models
     # Reimport app to pick up env in lifespan
     if "serving.app" in sys.modules:
@@ -87,6 +88,21 @@ def test_reload_returns_summary(client):
     r = client.post("/reload")
     assert r.status_code == 200
     assert "reloaded" in r.json()
+
+
+def test_forecast_fails_closed_without_key_or_open(monkeypatch, tmp_path):
+    monkeypatch.delenv("DC_API_KEY", raising=False)
+    monkeypatch.delenv("DC_ALLOW_OPEN", raising=False)
+    monkeypatch.setenv("MODELS_DIR", str(tmp_path))
+    if "serving.app" in sys.modules:
+        del sys.modules["serving.app"]
+    from serving.app import app
+    with TestClient(app) as c:
+        r = c.post("/forecast", json={
+            "symbol": "BTC", "model": "rule-based",
+            "pct_change_24h": 1.2, "pct_change_7d": 5.0,
+        })
+        assert r.status_code == 503
 
 
 def test_api_key_enforced_when_set(monkeypatch, tmp_path):

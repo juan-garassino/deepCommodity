@@ -1,4 +1,4 @@
-from deepCommodity.guardrails.kill_switch import is_armed, kill_switch_path
+from deepCommodity.guardrails.kill_switch import halt_state, is_armed, kill_switch_path
 from deepCommodity.guardrails.limits import HARD_LIMITS, check_limits
 from deepCommodity.guardrails.sanitize import sanitize_news
 from deepCommodity.guardrails.circuit_breaker import (
@@ -9,6 +9,7 @@ from deepCommodity.guardrails.circuit_breaker import (
 
 __all__ = [
     "is_armed",
+    "halt_state",
     "kill_switch_path",
     "HARD_LIMITS",
     "check_limits",

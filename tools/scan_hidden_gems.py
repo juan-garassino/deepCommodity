@@ -28,6 +28,7 @@ import requests
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
+from deepCommodity.guardrails.sanitize import sanitize_news  # noqa: E402
 from deepCommodity.universe import Universe  # noqa: E402
 
 COINGECKO_MARKETS = "https://api.coingecko.com/api/v3/coins/markets"
@@ -68,7 +69,8 @@ def fetch_description(coin_id: str) -> str:
         if r.status_code != 200:
             return ""
         desc = (r.json().get("description") or {}).get("en", "") or ""
-        return desc.split(".")[0][:300]   # first sentence, max 300 chars
+        # CoinGecko descriptions are project-submitted free text -> sanitize
+        return sanitize_news(desc.split(".")[0][:300])   # first sentence, max 300 chars
     except Exception:  # noqa: BLE001
         return ""
 
@@ -100,7 +102,7 @@ def filter_candidates(rows: list[dict], excluded: set[str],
             continue
         out.append({
             "symbol": sym,
-            "name": row.get("name"),
+            "name": sanitize_news(row.get("name") or ""),  # attacker-controllable
             "coingecko_id": row.get("id"),
             "price_usd": price,
             "market_cap_usd": mcap,

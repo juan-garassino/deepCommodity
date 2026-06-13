@@ -93,3 +93,30 @@ class Universe:
 
     def theme_names(self) -> list[str]:
         return sorted(self.equity_themes.keys())
+
+
+def classify_symbol(universe: "Universe", symbol: str) -> tuple[str, str | None]:
+    """Map a symbol to its (bucket, sector) for gate attribution.
+
+    bucket ∈ {"anchor", "theme", "gem"}; sector is the sector-cap key (None = exempt).
+      - anchors (crypto or equity) -> ("anchor", None): the diversified safe lane.
+      - equity theme symbol        -> ("theme", <theme name>): first matching theme.
+      - non-anchor crypto          -> ("theme", "crypto"): alt-crypto concentration bucket.
+      - anything else              -> ("gem", None): idiosyncratic, no sector cap.
+    Anchor membership wins over theme membership (e.g. NVDA is an anchor).
+    """
+    sym = symbol.strip().upper()
+    anchors = {s.upper() for s in universe.crypto_anchors} | {
+        s.upper() for s in universe.equity_anchors
+    }
+    if sym in anchors:
+        return "anchor", None
+    for theme in sorted(universe.equity_themes):
+        if sym in {s.upper() for s in universe.equity_themes[theme]}:
+            return "theme", theme
+    noncore_crypto = {s.upper() for s in universe.crypto_large_cap} | {
+        s.upper() for s in universe.crypto_mid_cap
+    }
+    if sym in noncore_crypto:
+        return "theme", "crypto"
+    return "gem", None

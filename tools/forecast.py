@@ -148,6 +148,18 @@ def _news_predict(symbol: str, news_text: str) -> dict:
 
 # ---- remote inference API (calls the FastAPI server) ----------------------
 
+def _clamp_confidence(value) -> float:
+    """Force a model confidence into [0, 1]; non-finite/garbage -> 0.0 (fail safe)."""
+    import math
+    try:
+        c = float(value)
+    except (TypeError, ValueError):
+        return 0.0
+    if not math.isfinite(c):
+        return 0.0
+    return max(0.0, min(1.0, c))
+
+
 def _api_predict(symbol: str, payload_extras: dict, api_url: str, api_key: str | None,
                  model: str = "ensemble", timeout: float = 20.0) -> dict | None:
     """POST /forecast on the deepCommodity inference service. Returns None on
@@ -162,11 +174,14 @@ def _api_predict(symbol: str, payload_extras: dict, api_url: str, api_key: str |
                           json=body, headers=headers, timeout=timeout)
         if r.status_code != 200:
             return {"symbol": symbol, "direction": "flat", "confidence": 0.0,
-                    "rationale": f"[api error {r.status_code}] {r.text[:120]}"}
+                    "rationale": f"[api error {r.status_code}]"}
         d = r.json()
-        return {"symbol": symbol, "direction": d.get("direction", "flat"),
-                "confidence": float(d.get("confidence", 0.0)),
-                "rationale": f"[api/{d.get('model','?')}] {d.get('rationale','')[:200]}"}
+        direction = d.get("direction", "flat")
+        if direction not in ("long", "short", "flat"):
+            direction = "flat"
+        return {"symbol": symbol, "direction": direction,
+                "confidence": _clamp_confidence(d.get("confidence", 0.0)),
+                "rationale": f"[api/{d.get('model','?')}] {str(d.get('rationale',''))[:200]}"}
     except Exception as e:  # noqa: BLE001
         return {"symbol": symbol, "direction": "flat", "confidence": 0.0,
                 "rationale": f"[api exception] {e}"}
@@ -200,10 +215,22 @@ def _ensemble(predictions: list[dict]) -> dict | None:
 
 # ---- I/O ------------------------------------------------------------------
 
+def _safe_input_path(src: str) -> Path:
+    """Confine input file reads to the repo or a temp dir. Blocks reading arbitrary
+    paths like ~/.env or other repos' secrets via a prompt-injected --input."""
+    import tempfile
+    p = Path(src).resolve()
+    allowed = [ROOT.resolve(), Path("/tmp").resolve(),
+               Path(tempfile.gettempdir()).resolve()]
+    if not any(str(p).startswith(str(a) + os.sep) or p == a for a in allowed):
+        raise SystemExit(f"refusing to read input path outside the repo/tmp: {src}")
+    return p
+
+
 def _load_inputs(paths: list[str]) -> dict[str, dict]:
     merged = {}
     for src in paths:
-        text = sys.stdin.read() if src == "-" else Path(src).read_text()
+        text = sys.stdin.read() if src == "-" else _safe_input_path(src).read_text()
         merged.update(json.loads(text).get("symbols", {}))
     return merged
 
@@ -238,7 +265,7 @@ def main() -> None:
 
     news_text = ""
     if args.news_input:
-        news_text = json.loads(Path(args.news_input).read_text()).get("digest", "")
+        news_text = json.loads(_safe_input_path(args.news_input).read_text()).get("digest", "")
 
     forecasts: list[dict] = []
     bars_dir = Path(args.bars_dir)

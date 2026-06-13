@@ -1,8 +1,11 @@
 {
   "permissions": {
     "allow": [
-      "Bash(python:*)",
-      "Bash(python3:*)",
+      "Bash(python tools/*.py:*)",
+      "Bash(python3 tools/*.py:*)",
+      "Bash(python3 -m pytest:*)",
+      "Bash(python -m pytest:*)",
+      "Bash(python3 -c \"import ccxt, alpaca\")",
       "Bash(cat:*)",
       "Bash(tail:*)",
       "Bash(head:*)",
@@ -14,8 +17,7 @@
       "Bash(sed:*)",
       "Bash(echo:*)",
       "Bash(jq:*)",
-      "Bash(bash tools/*.sh:*)",
-
+      "Bash(bash tools/persist_logs.sh:*)",
       "Bash(git status)",
       "Bash(git diff:*)",
       "Bash(git log:*)",
@@ -25,7 +27,6 @@
       "Bash(git add TRADE-LOG.md*)",
       "Bash(git add WEEKLY-REVIEW.md*)",
       "Bash(git add KILL_SWITCH*)",
-      "Bash(git add -A:*)",
       "Bash(git commit -m:*)",
       "Bash(git commit --no-verify*)",
       "Bash(git rev-parse:*)",
@@ -34,14 +35,12 @@
       "Bash(git checkout -B claude/*)",
       "Bash(git push -u origin claude/*)",
       "Bash(git push origin claude/*)",
-
       "Bash(pip install --quiet --break-system-packages ccxt:*)",
       "Bash(pip install --quiet --break-system-packages alpaca-py:*)",
       "Bash(pip install --quiet --break-system-packages ccxt alpaca-py:*)",
       "Bash(python3 -m pip install --quiet --break-system-packages ccxt:*)",
       "Bash(python3 -m pip install --quiet --break-system-packages alpaca-py:*)",
       "Bash(python3 -m pip install --quiet --break-system-packages ccxt alpaca-py:*)",
-
       "Read(*)",
       "Write(/tmp/*)",
       "Edit(RESEARCH-LOG.md)",

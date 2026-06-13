@@ -69,7 +69,7 @@ def fetch_8ks_for_cik(cik: str) -> list[dict]:
 
     out = []
     for entry in root.findall(f"{ATOM_NS}entry"):
-        title = (entry.findtext(f"{ATOM_NS}title") or "").strip()
+        title = sanitize_news((entry.findtext(f"{ATOM_NS}title") or "").strip())
         updated = (entry.findtext(f"{ATOM_NS}updated") or "").strip()
         link_el = entry.find(f"{ATOM_NS}link")
         href = link_el.get("href") if link_el is not None else ""

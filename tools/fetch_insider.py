@@ -68,7 +68,7 @@ def parse(html: str, max_rows: int = 50) -> list[dict]:
             "filing_date": row["filing"].strip(),
             "txn_date": row["txn_date"].strip(),
             "insider": sanitize_news(row["insider"].strip()),
-            "role": row["role"].strip(),
+            "role": sanitize_news(row["role"].strip()),
             "price": row["price"].strip(),
             "value_usd": row["value"].strip().replace("$", "").replace(",", ""),
         })

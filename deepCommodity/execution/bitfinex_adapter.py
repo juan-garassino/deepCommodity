@@ -2,39 +2,40 @@ from __future__ import annotations
 
 import os
 
+from deepCommodity.execution._valuation import value_crypto_balances
 from deepCommodity.execution.broker import BrokerAdapter, OrderRequest, OrderResult
+from deepCommodity.util import envbool
 
 
 class BitfinexAdapter(BrokerAdapter):
-    """Bitfinex via ccxt (uniform interface, supports paper through their staging).
+    """Bitfinex via ccxt — DISABLED in the live path (audit fix B7).
 
-    Routed when env BROKER_CRYPTO=bitfinex (otherwise crypto goes to Binance).
-    Bitfinex paper-trading lives on api-pub.bitfinex.com paper accounts; ccxt
-    handles routing once `BITFINEX_PAPER=true` selects the right URL set.
+    ccxt's bitfinex2 has no real sandbox routing, so "paper mode" here previously
+    sent live orders to whatever account the keys belonged to. The adapter now
+    refuses to construct unless the operator has explicitly confirmed they have
+    verified paper sub-account keys (BITFINEX_SANDBOX_CONFIRMED=true). Until real
+    sandbox routing exists, crypto goes to Binance.
     """
 
     name = "bitfinex"
 
     def __init__(self) -> None:
+        if not envbool("BITFINEX_SANDBOX_CONFIRMED", False):
+            raise RuntimeError(
+                "Bitfinex adapter disabled: no verified paper routing (audit B7). "
+                "Use Binance for crypto, or set BITFINEX_SANDBOX_CONFIRMED=true only if "
+                "you have confirmed paper sub-account keys."
+            )
         try:
             import ccxt  # type: ignore
         except ImportError as e:
             raise RuntimeError("ccxt not installed; pip install ccxt") from e
         self._ccxt = ccxt
-        self._client = self._make_client()
-
-    def _make_client(self):
-        cfg = {
+        self._client = self._ccxt.bitfinex2({
             "apiKey": os.getenv("BITFINEX_API_KEY", ""),
             "secret": os.getenv("BITFINEX_API_SECRET", ""),
             "enableRateLimit": True,
-        }
-        client = self._ccxt.bitfinex2(cfg)
-        if self.mode == "paper" or os.getenv("BITFINEX_PAPER", "true").lower() == "true":
-            # ccxt does not expose set_sandbox_mode for bitfinex2; route via paper API base
-            client.urls["api"] = client.urls.get("api", {})
-            # The agent should rely on paper sub-account API keys for safety in paper mode.
-        return client
+        })
 
     @staticmethod
     def _to_pair(symbol: str) -> str:
@@ -43,13 +44,20 @@ class BitfinexAdapter(BrokerAdapter):
     def submit(self, req: OrderRequest) -> OrderResult:
         pair = self._to_pair(req.symbol)
         try:
-            if req.type == "market":
-                order = self._client.create_order(pair, "market", req.side, req.qty)
-            else:
-                order = self._client.create_order(pair, "limit", req.side, req.qty, req.limit_price)
+            qty = float(self._client.amount_to_precision(pair, req.qty))
+            if qty <= 0:
+                return OrderResult(
+                    ok=False, broker=self.name, mode=self.mode,
+                    symbol=req.symbol, side=req.side, qty=req.qty,
+                    error="qty rounds to zero at exchange precision",
+                )
+            params = {"clientOrderId": req.client_order_id} if req.client_order_id else {}
+            otype = "market" if req.type == "market" else "limit"
+            price = None if req.type == "market" else req.limit_price
+            order = self._client.create_order(pair, otype, req.side, qty, price, params)
             return OrderResult(
                 ok=True, broker=self.name, mode=self.mode,
-                symbol=req.symbol, side=req.side, qty=req.qty,
+                symbol=req.symbol, side=req.side, qty=qty,
                 fill_price=order.get("average") or order.get("price"),
                 order_id=str(order.get("id")), raw=order,
             )
@@ -59,11 +67,16 @@ class BitfinexAdapter(BrokerAdapter):
                 symbol=req.symbol, side=req.side, qty=req.qty, error=str(e),
             )
 
-    def portfolio_nav(self) -> float:
-        bal = self._client.fetch_balance().get("total", {})
-        return float(bal.get("USD", 0.0)) + float(bal.get("USDT", 0.0))
+    def account_state(self) -> tuple[float, dict[str, float], float]:
+        bal = self._client.fetch_balance()
+        totals = bal.get("total", {}) or {}
+        free = bal.get("free", {}) or {}
+        tickers = self._client.fetch_tickers()
+        return value_crypto_balances(totals, free, tickers)
 
-    def positions(self) -> dict[str, float]:
-        bal = self._client.fetch_balance().get("total", {})
-        return {k: float(v) for k, v in bal.items()
-                if float(v) > 0 and k not in ("USD", "USDT")}
+    def reference_price(self, symbol: str) -> float:
+        t = self._client.fetch_ticker(self._to_pair(symbol))
+        px = t.get("last") or t.get("close")
+        if not px:
+            raise RuntimeError(f"no reference price for {symbol}")
+        return float(px)

@@ -67,8 +67,8 @@ You are an agentic quant — see AGENTIC-QUANT.md. Three buckets, three gates, m
 13. For each surviving candidate:
     - Determine sizing: `position_value = min(0.05 × NAV, conviction × tier_sleeve_remaining)`; `qty = position_value / current_price`.
     - Run `python3 tools/risk_check.py --symbol <s> --side buy --qty <q> --price <p> --asset-class crypto|equity`.
-    - If exit 0: `python3 tools/place_order.py --symbol <s> --side buy --qty <q> --price <p> --asset-class crypto|equity --reason "<thesis>"`.
-    - Pass `--confirm-live` ONLY if `TRADING_MODE=live` AND `DAILY_DECISION_AUTHORIZE_LIVE=true`.
+    - If exit 0: `python3 tools/place_order.py --symbol <s> --side buy --qty <q> --price <p> --asset-class crypto|equity --allow-buy --reason "<thesis>"`. **`--allow-buy` is REQUIRED to open/add a position** (without it place_order exits 5); only the decision/intraday routines pass it.
+    - Pass `--confirm-live` ONLY if `TRADING_MODE=live` AND `DAILY_DECISION_AUTHORIZE_LIVE=true`. (place_order also re-checks both in code and enforces the `DC_MAX_NAV_USD` ceiling.)
 
 14. **Thesis requirements** (in `--reason`):
     - Anchor: "anchor: <signal>" — momentum direction is enough.

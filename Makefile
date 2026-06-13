@@ -89,7 +89,7 @@ count_lines:
   dc-pipeline-equity dc-pipeline-equity-gpu dc-pipeline-all-markets \
   dc-train-all dc-train-all-fast \
   dc-smoke-paper \
-  dc-test dc-clean-data
+  dc-test dc-preflight-live dc-clean-data
 
 ENV := PYTHONUNBUFFERED=1 KMP_DUPLICATE_LIB_OK=TRUE OMP_NUM_THREADS=1 MKL_NUM_THREADS=1
 
@@ -136,6 +136,17 @@ dc-test:
 	@echo "  TEST — run full pytest suite"
 	@echo "================================================================"
 	$(ENV) python3 -m pytest tests/ -q
+
+dc-preflight-live:
+	@echo ""
+	@echo "================================================================"
+	@echo "  PREFLIGHT-LIVE — go-live gate: suite + paper smoke"
+	@echo "  Must be clean BEFORE flipping the live keypair."
+	@echo "================================================================"
+	$(ENV) python3 -m pytest tests/ -q
+	@echo "--- paper smoke (real OpenAI + Alpaca paper) ---"
+	@TRADING_MODE=paper bash tools/smoke_paper.sh
+	@echo "[OK] preflight-live checks passed — review, then flip TRADING_MODE=live on your go."
 
 # -----------------------------------------------------------------------------
 # Stage 01 — Fetch historical OHLCV bars

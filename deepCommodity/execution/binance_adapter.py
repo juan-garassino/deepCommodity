@@ -2,7 +2,18 @@ from __future__ import annotations
 
 import os
 
+from deepCommodity.execution._valuation import value_crypto_balances
 from deepCommodity.execution.broker import BrokerAdapter, OrderRequest, OrderResult
+from deepCommodity.util import envbool
+
+
+def _binance_use_sandbox(mode: str) -> bool:
+    """Sandbox unless we are explicitly in live mode AND testnet is explicitly off.
+
+    Defaults fail safe: paper mode always sandboxes; a missing/whitespace
+    BINANCE_TESTNET keeps us on testnet.
+    """
+    return mode != "live" or envbool("BINANCE_TESTNET", True)
 
 
 class BinanceAdapter(BrokerAdapter):
@@ -23,8 +34,7 @@ class BinanceAdapter(BrokerAdapter):
             "enableRateLimit": True,
         }
         client = self._ccxt.binance(cfg)
-        # Testnet routing when paper or BINANCE_TESTNET=true
-        if self.mode == "paper" or os.getenv("BINANCE_TESTNET", "true").lower() == "true":
+        if _binance_use_sandbox(self.mode):
             client.set_sandbox_mode(True)
         return client
 
@@ -35,11 +45,22 @@ class BinanceAdapter(BrokerAdapter):
     def submit(self, req: OrderRequest) -> OrderResult:
         pair = self._to_pair(req.symbol)
         try:
+            # round qty DOWN to the exchange step size so we never exceed the sized notional
+            qty = float(self._client.amount_to_precision(pair, req.qty))
+            if qty <= 0:
+                return OrderResult(
+                    ok=False, broker=self.name, mode=self.mode,
+                    symbol=req.symbol, side=req.side, qty=req.qty,
+                    error="qty rounds to zero at exchange precision",
+                )
+            params = {}
+            if req.client_order_id:
+                params["clientOrderId"] = req.client_order_id
             if req.type == "market":
-                order = self._client.create_order(pair, "market", req.side, req.qty)
+                order = self._client.create_order(pair, "market", req.side, qty, None, params)
             else:
                 order = self._client.create_order(
-                    pair, "limit", req.side, req.qty, req.limit_price
+                    pair, "limit", req.side, qty, req.limit_price, params
                 )
             return OrderResult(
                 ok=True,
@@ -47,7 +68,7 @@ class BinanceAdapter(BrokerAdapter):
                 mode=self.mode,
                 symbol=req.symbol,
                 side=req.side,
-                qty=req.qty,
+                qty=qty,
                 fill_price=order.get("average") or order.get("price"),
                 order_id=str(order.get("id")),
                 raw=order,
@@ -58,14 +79,16 @@ class BinanceAdapter(BrokerAdapter):
                 symbol=req.symbol, side=req.side, qty=req.qty, error=str(e),
             )
 
-    def portfolio_nav(self) -> float:
+    def account_state(self) -> tuple[float, dict[str, float], float]:
         bal = self._client.fetch_balance()
-        # USDT-equivalent NAV approximation (testnet/live both expose total in 'total')
-        total = bal.get("total", {})
-        usdt = float(total.get("USDT", 0.0))
-        # naive: treat non-USDT balances as zero in v1; real NAV computed via tickers later
-        return usdt
+        totals = bal.get("total", {}) or {}
+        free = bal.get("free", {}) or {}
+        tickers = self._client.fetch_tickers()
+        return value_crypto_balances(totals, free, tickers)
 
-    def positions(self) -> dict[str, float]:
-        bal = self._client.fetch_balance().get("total", {})
-        return {k: float(v) for k, v in bal.items() if float(v) > 0 and k != "USDT"}
+    def reference_price(self, symbol: str) -> float:
+        t = self._client.fetch_ticker(self._to_pair(symbol))
+        px = t.get("last") or t.get("close")
+        if not px:
+            raise RuntimeError(f"no reference price for {symbol}")
+        return float(px)
