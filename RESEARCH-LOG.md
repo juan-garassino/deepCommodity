@@ -231,3 +231,7 @@ ai_compute: NVDA, AMD | nuclear: OKLO, CCJ | defense: LMT, RTX
 - BTC ETF: $4.4B 13-day outflow streak ended Jun 4 with $3M reversal; BTC +5.1% 7d despite ETF headwinds → spot demand absorbing selling
 - Bitcoin ETF $2.6B net outflows YTD as capital rotates into AI equities (CoinDesk) — ai_compute/crypto_proxy divergence
 - LINK outperforming anchors: +10.3% 7d vs BTC +5.1% — possible oracle/DeFi mini-rotation
+
+## 2026-06-13 13:35 UTC — position-mgmt-halt
+
+check_drawdown.py returned {armed: true} — KILL_SWITCH armed by drawdown breaker. No position reconciliation. No sells. All trading blocked. Action required: investigate NAV drawdown vs day/week baseline; remove KILL_SWITCH manually after confirming losses are within tolerance.
