@@ -258,3 +258,25 @@ Bucket decisions:
 Anomalies: ATOM +21.2% 7d (no news catalyst); LINK +8.9% 7d outpacing anchor; GWEI (ETHGas) +66.8% 7d amid ETH ETF inflows (potential second-order ETH play, watch list).
 
 Result: 0 new positions. Broker unavailable — fail-closed. Capital preserved.
+
+## 2026-06-13 15:06 UTC — position-mgmt 2026-06-13 15:06 UTC
+
+## Position-Mgmt Run — 2026-06-13 15:06 UTC
+
+### Drawdown Check
+check_drawdown.py: NAV unavailable (Binance testnet geo-blocked). armed=false. No KILL_SWITCH armed this run.
+
+Note: Previous run (13:35 UTC) logged KILL_SWITCH armed — file is gitignored, does not persist across ephemeral cloud containers. DC_HALT=false confirmed; no halt active.
+
+### Open Position Reconciliation
+Parsed TRADE-LOG.md:
+- AAPL 1.0 (paper) | entry 2026-05-09 | fill_price: not recorded | reason: dc-smoke-paper end-to-end
+Smoke-test artifact. Entry price absent — stop/TP rules cannot be applied. No crypto positions in log.
+
+### Decision Tree
+- No crypto positions to reconcile.
+- AAPL: equity anchor, smoke-test artifact, no entry price, equity markets closed Saturday. No action.
+- Sells: 0/3 | Stops tightened: 0 | Held: 0
+
+### Anomaly Note: KILL_SWITCH Persistence Gap
+Cloud containers are ephemeral; KILL_SWITCH (gitignored) resets each run. If drawdown breaker arms it in run N, run N+1 starts without it. Reliable cloud halt requires DC_HALT=true in the cloud env. Current DC_HALT=false — no halt warranted; documenting for visibility.
