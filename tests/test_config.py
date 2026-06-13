@@ -44,3 +44,6 @@ def test_max_nav_usd(monkeypatch):
     assert config.max_nav_usd() == 0.0
     monkeypatch.setenv("DC_MAX_NAV_USD", " 500 ")
     assert config.max_nav_usd() == 500.0
+    for bad in ("nan", "inf", "-inf"):           # non-finite -> 0.0 -> fail closed in live
+        monkeypatch.setenv("DC_MAX_NAV_USD", bad)
+        assert config.max_nav_usd() == 0.0

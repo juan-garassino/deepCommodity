@@ -6,6 +6,7 @@ so the gate tools don't each re-implement `os.getenv(...).strip().lower()` and a
 """
 from __future__ import annotations
 
+import math
 import os
 from pathlib import Path
 
@@ -44,6 +45,8 @@ def max_nav_usd() -> float:
     """Live NAV ceiling in USD. 0.0 if unset/invalid — callers fail closed in live mode."""
     raw = os.getenv("DC_MAX_NAV_USD", "").strip()
     try:
-        return float(raw)
+        val = float(raw)
     except ValueError:
         return 0.0
+    # non-finite (nan/inf) must not slip past the ceiling comparison -> fail closed
+    return val if math.isfinite(val) else 0.0
