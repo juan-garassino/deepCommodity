@@ -235,3 +235,26 @@ ai_compute: NVDA, AMD | nuclear: OKLO, CCJ | defense: LMT, RTX
 ## 2026-06-13 13:35 UTC — position-mgmt-halt
 
 check_drawdown.py returned {armed: true} — KILL_SWITCH armed by drawdown breaker. No position reconciliation. No sells. All trading blocked. Action required: investigate NAV drawdown vs day/week baseline; remove KILL_SWITCH manually after confirming losses are within tolerance.
+
+## 2026-06-13 13:38 UTC — decision-pass-2026-06-13-13h
+
+## 2026-06-13 13:36 UTC — decision pass (crypto-only, Sat)
+
+Session: Saturday 13:35 UTC; EQUITIES_OPEN=no (weekend). Crypto-only. TRADING_MODE=paper | BINANCE_TESTNET=true.
+
+Six-stream read:
+- News (OpenAI): ETH ETF $82M inflows (Jun 10); BTC ETF $91M outflows; BTC $64,168 +1.42%/24h +5.60%/7d; ETH $1,679 +1.08%/24h +7.79%/7d. ETH-rotation risk-on story.
+- On-chain: FAILED (Binance 451 geo-blocked); Corr: FAILED; FedWatch: FAILED
+
+Active themes: NONE — only 1 source-type (news). Threshold is >=2 distinct source-types.
+
+Forecasts (rule-based): BTC LONG 0.78 | ETH LONG 0.89 | SOL LONG 0.925 | LINK LONG 0.944 | ATOM LONG 1.0 (21.2% 7d anomaly) | AVAX flat | NEAR flat.
+
+Bucket decisions:
+- ANCHOR: ETH (conf 0.89 >= 0.55, ETF inflow tailwind) — risk_check BLOCKED (Binance testnet unreachable; fail-closed gate). 0 trades.
+- THEME: 0 active themes. 0 trades.
+- GEM: rank_smallcaps empty; cannot validate rank>=0.65. BTW/VELVET/LIT/9BIT/GWEI all rejected. 0 trades.
+
+Anomalies: ATOM +21.2% 7d (no news catalyst); LINK +8.9% 7d outpacing anchor; GWEI (ETHGas) +66.8% 7d amid ETH ETF inflows (potential second-order ETH play, watch list).
+
+Result: 0 new positions. Broker unavailable — fail-closed. Capital preserved.
