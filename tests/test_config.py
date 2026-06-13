@@ -28,3 +28,19 @@ def test_dc_home_precedence(monkeypatch, tmp_path):
 def test_repo_root_is_repo():
     assert (config.REPO_ROOT / "deepCommodity").is_dir()
     assert (config.REPO_ROOT / "tools").is_dir()
+
+
+def test_authorize_live(monkeypatch):
+    monkeypatch.delenv("DAILY_DECISION_AUTHORIZE_LIVE", raising=False)
+    assert config.authorize_live() is False
+    monkeypatch.setenv("DAILY_DECISION_AUTHORIZE_LIVE", "true")
+    assert config.authorize_live() is True
+
+
+def test_max_nav_usd(monkeypatch):
+    monkeypatch.delenv("DC_MAX_NAV_USD", raising=False)
+    assert config.max_nav_usd() == 0.0      # unset -> 0 -> caller fails closed
+    monkeypatch.setenv("DC_MAX_NAV_USD", "not-a-number")
+    assert config.max_nav_usd() == 0.0
+    monkeypatch.setenv("DC_MAX_NAV_USD", " 500 ")
+    assert config.max_nav_usd() == 500.0

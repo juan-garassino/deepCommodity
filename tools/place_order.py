@@ -16,7 +16,6 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
-import os
 import subprocess
 import sys
 from datetime import datetime, timezone
@@ -32,7 +31,6 @@ from deepCommodity.guardrails.kill_switch import halt_state  # noqa: E402
 from deepCommodity.guardrails.preflight import preflight  # noqa: E402
 from deepCommodity.guardrails.limits import OrderProposal  # noqa: E402
 from deepCommodity.universe import Universe, classify_symbol  # noqa: E402
-from deepCommodity.util import envbool  # noqa: E402
 
 
 def _journal(symbol, side, qty, status, result, reason, mode) -> None:
@@ -65,7 +63,7 @@ def _client_order_id(symbol, side, qty, reason, now: datetime | None = None) -> 
 def _live_authorized(mode: str, confirm_live: bool) -> tuple[bool, str]:
     if mode != "live":
         return True, ""
-    if not envbool("DAILY_DECISION_AUTHORIZE_LIVE", False):
+    if not config.authorize_live():
         return False, "live requires DAILY_DECISION_AUTHORIZE_LIVE=true and --confirm-live"
     if not confirm_live:
         return False, "live requires --confirm-live"
@@ -156,10 +154,7 @@ def execute(
 
     # Gate 5: live NAV ceiling — fail CLOSED if the ceiling is unset/invalid
     if mode == "live":
-        try:
-            ceiling = float(os.getenv("DC_MAX_NAV_USD", "").strip())
-        except ValueError:
-            ceiling = 0.0
+        ceiling = config.max_nav_usd()
         if ceiling <= 0:
             msg = "live requires a positive DC_MAX_NAV_USD ceiling"
             print(f"BLOCKED: {msg}", file=sys.stderr)

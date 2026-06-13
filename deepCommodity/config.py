@@ -13,7 +13,8 @@ from deepCommodity.util import envbool  # re-exported for callers
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 
-__all__ = ["REPO_ROOT", "dc_home", "trading_mode", "is_live", "is_halt_mode", "envbool"]
+__all__ = ["REPO_ROOT", "dc_home", "trading_mode", "is_live", "is_halt_mode",
+           "authorize_live", "max_nav_usd", "envbool"]
 
 
 def dc_home(override: Path | None = None) -> Path:
@@ -32,3 +33,17 @@ def is_live() -> bool:
 
 def is_halt_mode() -> bool:
     return trading_mode() == "halt"
+
+
+def authorize_live() -> bool:
+    """Second live gate — DAILY_DECISION_AUTHORIZE_LIVE must be explicitly truthy."""
+    return envbool("DAILY_DECISION_AUTHORIZE_LIVE", False)
+
+
+def max_nav_usd() -> float:
+    """Live NAV ceiling in USD. 0.0 if unset/invalid — callers fail closed in live mode."""
+    raw = os.getenv("DC_MAX_NAV_USD", "").strip()
+    try:
+        return float(raw)
+    except ValueError:
+        return 0.0
