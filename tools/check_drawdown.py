@@ -9,7 +9,6 @@ from __future__ import annotations
 
 import argparse
 import json
-import os
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
@@ -17,11 +16,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
+from deepCommodity import config  # noqa: E402
 from deepCommodity.guardrails.circuit_breaker import arm_kill_switch, evaluate_drawdown  # noqa: E402
-
-
-def _home(home: Path | None = None) -> Path:
-    return Path(home or os.getenv("DC_HOME") or ROOT)
 
 
 def _total_nav() -> float:
@@ -67,9 +63,9 @@ def run(nav_fetcher, baseline_path: Path, root: Path, now: datetime | None = Non
 
 def main() -> None:
     p = argparse.ArgumentParser()
-    p.add_argument("--baseline", default=str(_home() / "state" / "nav_baseline.json"))
+    p.add_argument("--baseline", default=str(config.dc_home() / "state" / "nav_baseline.json"))
     args = p.parse_args()
-    armed = run(_total_nav, Path(args.baseline), root=_home())
+    armed = run(_total_nav, Path(args.baseline), root=config.dc_home())
     print(json.dumps({"armed": armed}, indent=2))
     sys.exit(0)
 

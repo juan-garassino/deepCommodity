@@ -8,48 +8,34 @@ clean book). place_order re-runs the same gate before submitting.
 from __future__ import annotations
 
 import argparse
-import os
 import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-from deepCommodity.execution.broker import get_broker  # noqa: E402
-from deepCommodity.execution.portfolio import (  # noqa: E402
-    BrokerPortfolioProvider,
-    PortfolioUnavailable,
-)
+from deepCommodity import config  # noqa: E402
+from deepCommodity.execution.portfolio import make_provider  # noqa: E402
 from deepCommodity.guardrails.limits import OrderProposal  # noqa: E402
 from deepCommodity.guardrails.preflight import preflight  # noqa: E402
 from deepCommodity.universe import Universe, classify_symbol  # noqa: E402
 
 
-def _home(home: Path | None = None) -> Path:
-    return Path(home or os.getenv("DC_HOME") or ROOT)
-
-
-def _make_provider(asset_class: str, home: Path | None):
-    broker = get_broker(asset_class)
-    return BrokerPortfolioProvider(
-        broker, Universe.load(), trade_log_path=_home(home) / "TRADE-LOG.md"
-    )
-
-
 def evaluate(*, symbol, side, qty, price, asset_class, sector=None,
              provider=None, home: Path | None = None) -> tuple[int, str]:
     symbol = symbol.strip().upper()  # canonical key (match broker position keys)
+    universe = Universe.load()
     if provider is None:
         try:
-            provider = _make_provider(asset_class, home)
+            provider, _ = make_provider(asset_class, home=home, universe=universe)
         except Exception as e:  # noqa: BLE001
             return 1, f"BLOCKED: portfolio unavailable ({e})"
-    bucket, derived_sector = classify_symbol(Universe.load(), symbol)
+    bucket, derived_sector = classify_symbol(universe, symbol)
     proposal = OrderProposal(
         symbol=symbol, side=side, qty=qty, notional_usd=qty * price,
         sector=sector or derived_sector, bucket=bucket,
     )
-    decision = preflight(proposal, provider, root=_home(home))
+    decision = preflight(proposal, provider, root=config.dc_home(home))
     if decision.allow:
         return 0, decision.reason
     return (2 if decision.code == "halt" else 1), decision.reason

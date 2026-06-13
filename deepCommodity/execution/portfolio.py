@@ -146,12 +146,35 @@ class MockPortfolioProvider(PortfolioProvider):
         return self._snapshot
 
 
-def build_snapshot(asset_class: str, now: datetime | None = None) -> PortfolioSnapshot:
-    """Wire the live broker + universe into an authoritative snapshot. Fail closed."""
+def make_provider(
+    asset_class: str,
+    *,
+    home: Path | None = None,
+    now: datetime | None = None,
+    universe: Universe | None = None,
+):
+    """The single provider+broker factory for the gate path.
+
+    Returns (provider, broker). Broker construction failure raises PortfolioUnavailable
+    so callers fail closed. `universe` lets a caller load themes.yaml once and share it.
+    """
+    from deepCommodity.config import dc_home
     from deepCommodity.execution.broker import get_broker
 
     try:
         broker = get_broker(asset_class)
     except Exception as e:
         raise PortfolioUnavailable(f"broker init failed: {e}") from e
-    return BrokerPortfolioProvider(broker, Universe.load(), now=now).snapshot()
+    provider = BrokerPortfolioProvider(
+        broker,
+        universe or Universe.load(),
+        now=now,
+        trade_log_path=dc_home(home) / "TRADE-LOG.md",
+    )
+    return provider, broker
+
+
+def build_snapshot(asset_class: str, now: datetime | None = None) -> PortfolioSnapshot:
+    """Wire the live broker + universe into an authoritative snapshot. Fail closed."""
+    provider, _ = make_provider(asset_class, now=now)
+    return provider.snapshot()

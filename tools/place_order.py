@@ -25,20 +25,14 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-from deepCommodity.execution.broker import OrderRequest, get_broker  # noqa: E402
-from deepCommodity.execution.portfolio import (  # noqa: E402
-    BrokerPortfolioProvider,
-    PortfolioUnavailable,
-)
+from deepCommodity import config  # noqa: E402
+from deepCommodity.execution.broker import OrderRequest  # noqa: E402
+from deepCommodity.execution.portfolio import make_provider  # noqa: E402
 from deepCommodity.guardrails.kill_switch import halt_state  # noqa: E402
 from deepCommodity.guardrails.preflight import preflight  # noqa: E402
 from deepCommodity.guardrails.limits import OrderProposal  # noqa: E402
 from deepCommodity.universe import Universe, classify_symbol  # noqa: E402
 from deepCommodity.util import envbool  # noqa: E402
-
-
-def _home(home: Path | None = None) -> Path:
-    return Path(home or os.getenv("DC_HOME") or ROOT)
 
 
 def _journal(symbol, side, qty, status, result, reason, mode) -> None:
@@ -60,15 +54,6 @@ def _journal(symbol, side, qty, status, result, reason, mode) -> None:
         sys.executable, str(ROOT / "tools" / "notify_telegram.py"),
         "--topic", "trade", "--severity", severity, "--message", body, "--quiet",
     ], check=False)
-
-
-def _make_provider_and_broker(asset_class: str, home: Path):
-    """Build the live broker + authoritative portfolio provider. May raise."""
-    broker = get_broker(asset_class)
-    provider = BrokerPortfolioProvider(
-        broker, Universe.load(), trade_log_path=_home(home) / "TRADE-LOG.md"
-    )
-    return provider, broker
 
 
 def _client_order_id(symbol, side, qty, reason, now: datetime | None = None) -> str:
@@ -104,14 +89,16 @@ def execute(
     broker=None,
     home: Path | None = None,
 ) -> int:
-    mode = os.getenv("TRADING_MODE", "paper").strip().lower()
+    mode = config.trading_mode()
+    home_dir = config.dc_home(home)
+    universe = Universe.load()
     symbol = symbol.strip().upper()  # canonical key — must match broker position keys
 
     def block(status_reason: str, result: dict | None = None) -> None:
         _journal(symbol, side, qty, "blocked", result or {}, status_reason, mode)
 
     # Gate 1: halt (first, fail-closed)
-    halted, confirmed, hreason = halt_state(root=_home(home))
+    halted, confirmed, hreason = halt_state(root=home_dir)
     if halted or not confirmed:
         print(f"BLOCKED: halt ({hreason})", file=sys.stderr)
         block(f"halt: {hreason}")
@@ -133,7 +120,7 @@ def execute(
     # Build broker + provider (fail-closed on init error)
     if provider is None or broker is None:
         try:
-            provider, broker = _make_provider_and_broker(asset_class, _home(home))
+            provider, broker = make_provider(asset_class, home=home, universe=universe)
         except Exception as e:  # noqa: BLE001
             print(f"BLOCKED: broker/provider unavailable ({e})", file=sys.stderr)
             block(f"broker unavailable: {e}")
@@ -154,14 +141,14 @@ def execute(
         # sells reduce exposure and skip the buy-only caps; sizing is informational
         notional = qty * (ref or (price if price and price > 0 else 0.0))
 
-    bucket, derived_sector = classify_symbol(Universe.load(), symbol)
+    bucket, derived_sector = classify_symbol(universe, symbol)
     proposal = OrderProposal(
         symbol=symbol, side=side, qty=qty, notional_usd=notional,
         sector=sector or derived_sector, bucket=bucket,
     )
 
     # Gate 4: preflight (halt re-check + authoritative snapshot + all limits)
-    decision = preflight(proposal, provider, root=_home(home))
+    decision = preflight(proposal, provider, root=home_dir)
     if not decision.allow:
         print(decision.reason, file=sys.stderr)
         block(decision.reason)
