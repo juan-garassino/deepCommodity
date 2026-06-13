@@ -228,6 +228,27 @@ can't confirm. Locally, `touch KILL_SWITCH` (repo-root anchored).
 See the per-bucket NAV guidance under **Money math** — paper/€100 = shakedown, €3,500+ = the
 system can clear its own costs.
 
+### API keys you need
+
+Full template + signup links are in `.env.sample`. Minimum to actually trade + research:
+
+| Key | For | Required? | Cost |
+|---|---|---|---|
+| `ALPACA_API_KEY` / `_SECRET` | US equities (Alpaca). **Paper** keypair for paper; a **separate LIVE** keypair for live (`ALPACA_PAPER=false`). | Required for equities | Free |
+| `BINANCE_API_KEY` / `_SECRET` | Crypto (Binance). **Testnet** keys for paper; live keys for live (`BINANCE_TESTNET=false`). | Required for crypto | Free |
+| `OPENAI_API_KEY` | News / signal engine (`fetch_news.py`, search-preview model). The research + decision routines lean on it. | Effectively required | ~$0.04 / call |
+| `FINNHUB_API_KEY` | Earnings calendar | Recommended | Free (60/min) — finnhub.io/register |
+| `FRED_API_KEY` | Macro + FedWatch | Recommended | Free |
+| `CRYPTOQUANT_API_KEY` | On-chain crypto | Optional (falls back to Binance volume) | Free tier |
+| `COINGECKO_API_KEY` | Higher CoinGecko rate limits | Optional (works without) | Free |
+| `PERPLEXITY_API_KEY` | Fallback news provider | Optional | Paid tier |
+| `TELEGRAM_BOT_TOKEN` / `TELEGRAM_CHAT_ID` | Trade / halt alerts | Optional (silent no-op if unset) | Free |
+| `DC_API_KEY` | Auth for the `serving/` inference service | Only if you run `--model api` | n/a |
+| `GLASSNODE` / `SANTIMENT` / `ALPHAVANTAGE` `_API_KEY` | Extra signal streams | Optional | Free tiers |
+
+Bare minimum to go live on one venue: that venue's broker keypair + `OPENAI_API_KEY`. Bitfinex
+keys are not used — it's disabled in the live path (audit B7).
+
 ## Inference deployment
 
 `serving/` is a FastAPI service that loads trained transformer checkpoints from a mounted volume and serves `/forecast`, `/health`, `/reload`. `serving/Dockerfile` + `serving/docker-compose.yml`. The agent calls it via `--model api` once `DC_API_URL` and `DC_API_KEY` are set in the cloud env.
