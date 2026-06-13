@@ -101,13 +101,14 @@ All news-text fetchers pass through `deepCommodity/guardrails/sanitize.sanitize_
 
 ## Routines on claude.ai/code/routines (cloud cadence)
 
-**24/7 crypto-first cadence** (Approach A) — crypto has no market hours, so passes are spread evenly
-around the clock and optimized for fast reaction to catalysts. Equities are paused (Alpaca live is
-EU-unavailable). 3 active routines, ~10/day, under the 15/day budget.
+**24/7 cadence** (Approach A) — passes spread evenly around the clock, optimized for fast reaction
+to catalysts. One decision routine handles **both asset classes**: crypto (Binance) always, US
+equities (Alpaca, **paper-only** — live is EU-unavailable) when US markets are open (UTC 13–21
+weekdays). 3 active routines, ~10/day, under the 15/day budget.
 
 | Routine | Cron (UTC) | Per day | What |
 |---|---|---|---|
-| `dc decision (24/7)` | `0 */4 * * *` (00/04/08/12/16/20) | 6 | crypto 6-stream read → theme detect → trade within bucket caps |
+| `dc decision (24/7)` | `0 */4 * * *` (00/04/08/12/16/20) | 6 | six-stream read (crypto + equities-when-open) → theme detect → trade within bucket caps |
 | `dc position-mgmt` | `0 3,9,15,21 * * *` (offset 3h) | 4 | drawdown breaker (`check_drawdown.py`) + close/trail; **never opens** |
 | `dc weekly review` | `0 18 * * 0` | 0.14 | per-bucket + per-theme PnL attribution |
 | **Total** | | **~10.1/day** | |
