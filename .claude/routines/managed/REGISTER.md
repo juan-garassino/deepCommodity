@@ -115,14 +115,12 @@ In any Claude Code session connected to your account, run:
 /schedule daily at 14:00 UTC and 22:00 UTC, run the deepCommodity daily decision routine using the prompt at .claude/routines/managed/daily-decision.md against repo deepCommodity, environment deepCommodity
 ```
 
-Claude walks you through the rest. Repeat for each routine:
+Claude walks you through the rest. The **24/7 crypto-first** cadence is 3 active routines:
 
 | Routine | Natural-language schedule prompt |
 |---|---|
-| `dc heartbeat` | `/schedule hourly at :03, run the deepCommodity heartbeat routine using the prompt at .claude/routines/managed/heartbeat.md, repo deepCommodity, environment deepCommodity` |
-| `dc hourly research` | `/schedule hourly at :07, run the deepCommodity hourly research routine using the prompt at .claude/routines/managed/hourly-research.md, repo deepCommodity, environment deepCommodity` |
-| `dc daily decision` | (the example above) |
-| `dc position-mgmt` | `/schedule daily at 13:00 UTC and 21:00 UTC, run the deepCommodity position-mgmt routine using the prompt at .claude/routines/managed/position-mgmt.md, repo deepCommodity, environment deepCommodity` |
+| `dc decision (24/7)` | `/schedule every 4 hours, run the deepCommodity decision routine using the prompt at .claude/routines/managed/decision.md, repo deepCommodity, environment deepCommodity` |
+| `dc position-mgmt` | `/schedule daily at 03:00, 09:00, 15:00, 21:00 UTC, run the deepCommodity position-mgmt routine using the prompt at .claude/routines/managed/position-mgmt.md, repo deepCommodity, environment deepCommodity` |
 | `dc weekly review` | `/schedule Sundays at 18:00 UTC, run the deepCommodity weekly review routine using the prompt at .claude/routines/managed/weekly-review.md, repo deepCommodity, environment deepCommodity` |
 
 Manage them after the fact:
@@ -130,14 +128,16 @@ Manage them after the fact:
 - `/schedule update` — edit a routine
 - `/schedule run` — fire one immediately
 
-> **Note**: cron minimum is 1 hour, so the heartbeat is hourly (not 15-min). For fine-grained smoke testing, use `/schedule run` to fire manually.
+> **Note**: cron minimum is 1 hour. The retired equity-hours routines (`daily decision open/close`,
+> `intraday news`, `research every 3h`, `heartbeat`) are superseded by the merged `decision` prompt —
+> disable them, then delete in the web UI.
 
 ### Path B — Web UI (claude.ai/code/routines)
 
 Per routine:
 
 1. **+ New routine**.
-2. **Name**: `dc heartbeat` / `dc hourly research` / `dc daily decision` / `dc weekly review`.
+2. **Name**: `dc decision (24/7)` / `dc position-mgmt` / `dc weekly review`.
 3. **Instructions**: paste the entire body of the corresponding `.claude/routines/managed/<name>.md` file.
 4. **Repository**: select your `deepCommodity` repo.
 5. **Environment**: select the `deepCommodity` environment created in step 2 above.
@@ -148,10 +148,8 @@ Per routine:
 
 | Routine | Cron (UTC) |
 |---|---|
-| `dc heartbeat` | `3 * * * *` |
-| `dc hourly research` | `7 * * * *` |
-| `dc daily decision` | `0 14 * * 1-5` (and create a second routine with `0 22 * * *` pointing at the same prompt) |
-| `dc position-mgmt` | `0 13,21 * * *` |
+| `dc decision (24/7)` | `0 */4 * * *` |
+| `dc position-mgmt` | `0 3,9,15,21 * * *` |
 | `dc weekly review` | `0 18 * * 0` |
 
 ---

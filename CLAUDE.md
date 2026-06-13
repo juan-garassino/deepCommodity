@@ -101,20 +101,26 @@ All news-text fetchers pass through `deepCommodity/guardrails/sanitize.sanitize_
 
 ## Routines on claude.ai/code/routines (cloud cadence)
 
-Daily total stays under your 15/day budget.
+**24/7 crypto-first cadence** (Approach A) — crypto has no market hours, so passes are spread evenly
+around the clock and optimized for fast reaction to catalysts. Equities are paused (Alpaca live is
+EU-unavailable). 3 active routines, ~10/day, under the 15/day budget.
 
 | Routine | Cron (UTC) | Per day | What |
 |---|---|---|---|
-| `dc heartbeat` | (paused / disabled) | 0 | canary; not needed when other routines run |
-| `dc research (every 3h)` | `7 */3 * * *` | 8 | 6-stream digest → theme detection → journal |
-| `dc daily decision (open)` | `0 14 * * 1-5` | 0.71 | weekday morning; bucket gates |
-| `dc intraday news` | `0 17 * * *` | 1 | tighter "breaking catalyst" gate; max 2 pos |
-| `dc daily decision (close)` | `0 22 * * *` | 1 | crypto-only second pass |
-| `dc position-mgmt` (NEW Phase A) | `0 13,21 * * *` | 2 | reconciles open positions; closes decayed thesis; trails stops; **never opens** |
+| `dc decision (24/7)` | `0 */4 * * *` (00/04/08/12/16/20) | 6 | crypto 6-stream read → theme detect → trade within bucket caps |
+| `dc position-mgmt` | `0 3,9,15,21 * * *` (offset 3h) | 4 | drawdown breaker (`check_drawdown.py`) + close/trail; **never opens** |
 | `dc weekly review` | `0 18 * * 0` | 0.14 | per-bucket + per-theme PnL attribution |
-| **Total** | | **12.85/day** | |
+| **Total** | | **~10.1/day** | |
 
-The paste-ready prompts are in `.claude/routines/managed/`. The schedule skill (`/schedule`) creates routines; tokens for API triggers are managed in the web UI.
+Decision and position-mgmt interleave every ~2h → ≤4h to act on a catalyst, ≤6h to catch a drawdown.
+The 3/day cap is code-enforced, so more passes mean faster reaction, not more trades.
+
+Disabled / retired (delete in the web UI): `dc daily decision (open/close)`, `dc intraday news`,
+`dc research (every 3h)`, `dc heartbeat` — superseded by the merged `dc decision` prompt.
+
+The paste-ready prompts are in `.claude/routines/managed/` (`decision.md`, `position-mgmt.md`,
+`weekly-review.md`). The schedule skill (`/schedule`) creates/updates routines; secrets + network
+allowlist live in the cloud `deepCommodity` environment.
 
 ## Gates are code-enforced (not prompt-trust)
 
