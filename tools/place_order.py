@@ -16,7 +16,6 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
-import os
 import subprocess
 import sys
 from datetime import datetime, timezone
@@ -25,20 +24,13 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-from deepCommodity.execution.broker import OrderRequest, get_broker  # noqa: E402
-from deepCommodity.execution.portfolio import (  # noqa: E402
-    BrokerPortfolioProvider,
-    PortfolioUnavailable,
-)
+from deepCommodity import config  # noqa: E402
+from deepCommodity.execution.broker import OrderRequest  # noqa: E402
+from deepCommodity.execution.portfolio import make_provider  # noqa: E402
 from deepCommodity.guardrails.kill_switch import halt_state  # noqa: E402
 from deepCommodity.guardrails.preflight import preflight  # noqa: E402
 from deepCommodity.guardrails.limits import OrderProposal  # noqa: E402
 from deepCommodity.universe import Universe, classify_symbol  # noqa: E402
-from deepCommodity.util import envbool  # noqa: E402
-
-
-def _home(home: Path | None = None) -> Path:
-    return Path(home or os.getenv("DC_HOME") or ROOT)
 
 
 def _journal(symbol, side, qty, status, result, reason, mode) -> None:
@@ -62,15 +54,6 @@ def _journal(symbol, side, qty, status, result, reason, mode) -> None:
     ], check=False)
 
 
-def _make_provider_and_broker(asset_class: str, home: Path):
-    """Build the live broker + authoritative portfolio provider. May raise."""
-    broker = get_broker(asset_class)
-    provider = BrokerPortfolioProvider(
-        broker, Universe.load(), trade_log_path=_home(home) / "TRADE-LOG.md"
-    )
-    return provider, broker
-
-
 def _client_order_id(symbol, side, qty, reason, now: datetime | None = None) -> str:
     now = now or datetime.now(timezone.utc)
     raw = f"{symbol}|{side}|{qty}|{reason}|{now.strftime('%Y-%m-%d')}"
@@ -80,7 +63,7 @@ def _client_order_id(symbol, side, qty, reason, now: datetime | None = None) -> 
 def _live_authorized(mode: str, confirm_live: bool) -> tuple[bool, str]:
     if mode != "live":
         return True, ""
-    if not envbool("DAILY_DECISION_AUTHORIZE_LIVE", False):
+    if not config.authorize_live():
         return False, "live requires DAILY_DECISION_AUTHORIZE_LIVE=true and --confirm-live"
     if not confirm_live:
         return False, "live requires --confirm-live"
@@ -104,14 +87,16 @@ def execute(
     broker=None,
     home: Path | None = None,
 ) -> int:
-    mode = os.getenv("TRADING_MODE", "paper").strip().lower()
+    mode = config.trading_mode()
+    home_dir = config.dc_home(home)
+    universe = Universe.load()
     symbol = symbol.strip().upper()  # canonical key — must match broker position keys
 
     def block(status_reason: str, result: dict | None = None) -> None:
         _journal(symbol, side, qty, "blocked", result or {}, status_reason, mode)
 
     # Gate 1: halt (first, fail-closed)
-    halted, confirmed, hreason = halt_state(root=_home(home))
+    halted, confirmed, hreason = halt_state(root=home_dir)
     if halted or not confirmed:
         print(f"BLOCKED: halt ({hreason})", file=sys.stderr)
         block(f"halt: {hreason}")
@@ -133,7 +118,7 @@ def execute(
     # Build broker + provider (fail-closed on init error)
     if provider is None or broker is None:
         try:
-            provider, broker = _make_provider_and_broker(asset_class, _home(home))
+            provider, broker = make_provider(asset_class, home=home, universe=universe)
         except Exception as e:  # noqa: BLE001
             print(f"BLOCKED: broker/provider unavailable ({e})", file=sys.stderr)
             block(f"broker unavailable: {e}")
@@ -154,14 +139,14 @@ def execute(
         # sells reduce exposure and skip the buy-only caps; sizing is informational
         notional = qty * (ref or (price if price and price > 0 else 0.0))
 
-    bucket, derived_sector = classify_symbol(Universe.load(), symbol)
+    bucket, derived_sector = classify_symbol(universe, symbol)
     proposal = OrderProposal(
         symbol=symbol, side=side, qty=qty, notional_usd=notional,
         sector=sector or derived_sector, bucket=bucket,
     )
 
     # Gate 4: preflight (halt re-check + authoritative snapshot + all limits)
-    decision = preflight(proposal, provider, root=_home(home))
+    decision = preflight(proposal, provider, root=home_dir)
     if not decision.allow:
         print(decision.reason, file=sys.stderr)
         block(decision.reason)
@@ -169,10 +154,7 @@ def execute(
 
     # Gate 5: live NAV ceiling — fail CLOSED if the ceiling is unset/invalid
     if mode == "live":
-        try:
-            ceiling = float(os.getenv("DC_MAX_NAV_USD", "").strip())
-        except ValueError:
-            ceiling = 0.0
+        ceiling = config.max_nav_usd()
         if ceiling <= 0:
             msg = "live requires a positive DC_MAX_NAV_USD ceiling"
             print(f"BLOCKED: {msg}", file=sys.stderr)
