@@ -191,6 +191,43 @@ python tools/forecast.py --input crypto.json --model ensemble --news-input news.
 python tools/forecast.py --input crypto.json --model api          # calls serving/ FastAPI
 ```
 
+## Going live (paper → live)
+
+The posture is **code-complete + paper-validated, then flip on a deliberate decision** — never
+flip fresh code straight to real money. The risk gates are code-enforced and fail closed, but
+validate behavior in paper first.
+
+**1. Gate — must be clean:**
+```bash
+make dc-preflight-live          # full suite + paper smoke (real OpenAI + Alpaca paper)
+```
+Then let the routines run in **paper** for a stretch (at least a few cron cadences) and confirm
+`TRADE-LOG.md` looks sane (sizing, buckets, no surprise blocks).
+
+**2. Flip — set these in the cloud environment** (https://claude.ai/code/environments):
+```
+TRADING_MODE=live
+DAILY_DECISION_AUTHORIZE_LIVE=true
+DC_MAX_NAV_USD=500          # hard ceiling — START SMALL; place_order blocks any live order above it
+ALPACA_PAPER=false          # live equities keypair (DIFFERENT from the paper keypair)
+BINANCE_TESTNET=false       # live crypto
+```
+Per-order, the agent still needs `--allow-buy` (decision/intraday routines pass it; position-mgmt
+never does) and `--confirm-live`. All four live conditions are enforced in `place_order.py`.
+
+**3. Emergency stop (any time):** set `DC_HALT=true` (or `TRADING_MODE=halt`) in the cloud env —
+it reaches the next headless run regardless of git/branch state, and the gate fails closed if it
+can't confirm. Locally, `touch KILL_SWITCH` (repo-root anchored).
+
+**Two things that bound the risk:**
+- `DC_MAX_NAV_USD` caps blast radius — a bug can lose at most a bounded amount. Raise it only
+  after you've watched live behavior, deliberately.
+- Live broker keypairs are **separate** from paper keys; real money is only reachable once you
+  paste the live keys AND set all of the above. Until then the system physically can't touch it.
+
+See the per-bucket NAV guidance under **Money math** — paper/€100 = shakedown, €3,500+ = the
+system can clear its own costs.
+
 ## Inference deployment
 
 `serving/` is a FastAPI service that loads trained transformer checkpoints from a mounted volume and serves `/forecast`, `/health`, `/reload`. `serving/Dockerfile` + `serving/docker-compose.yml`. The agent calls it via `--model api` once `DC_API_URL` and `DC_API_KEY` are set in the cloud env.
