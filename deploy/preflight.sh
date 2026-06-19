@@ -32,13 +32,15 @@ else
   fail "claude CLI not found on PATH — install_remote.sh installs it; check the trader user's PATH"
 fi
 
-# 2. Claude headless auth: API key in env, or stored credentials.
-if [ -n "${ANTHROPIC_API_KEY:-}" ]; then
+# 2. Claude headless auth: subscription OAuth token, API key, or stored credentials.
+if [ -n "${CLAUDE_CODE_OAUTH_TOKEN:-}" ]; then
+  pass "Claude auth: CLAUDE_CODE_OAUTH_TOKEN set (subscription)"
+elif [ -n "${ANTHROPIC_API_KEY:-}" ]; then
   pass "Claude auth: ANTHROPIC_API_KEY set"
 elif [ -f "$HOME/.claude/.credentials.json" ] || [ -d "$HOME/.claude" ]; then
   pass "Claude auth: ~/.claude credentials present"
 else
-  fail "Claude not authenticated — set ANTHROPIC_API_KEY in .env or run 'claude' login once as this user"
+  fail "Claude not authenticated — set CLAUDE_CODE_OAUTH_TOKEN (from 'claude setup-token') or ANTHROPIC_API_KEY in .env, or run 'claude' login once as this user"
 fi
 
 # 3. Binance reachability — the decisive geo check (451 = wrong region, hard fail).

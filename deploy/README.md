@@ -78,14 +78,17 @@ sudo systemctl enable --now deepcommodity-heartbeat.timer
 
 ## Authenticating Claude Code
 
-Routines run `claude -p` headless, so the box needs Claude auth before any timer fires. Two ways:
+Routines run `claude -p` headless, so the box needs Claude auth before any timer fires. Three ways:
 
-- **`ANTHROPIC_API_KEY` in `.env`** (recommended for cron/systemd) — `run_routine.sh` sources `.env`,
-  so `claude -p` picks it up automatically. Most reliable for unattended runs.
+- **`CLAUDE_CODE_OAUTH_TOKEN` in `.env`** — uses a Claude **subscription** (Pro/Max), no API credits.
+  Generate the long-lived token once on a machine with a browser: `claude setup-token`, then put the
+  printed token in `.env`. `run_routine.sh` sources `.env`, so `claude -p` picks it up. Note: routine
+  usage counts against the subscription's rate limits; fall back to an API key if you hit them.
+- **`ANTHROPIC_API_KEY` in `.env`** — pay-per-use API billing. Most predictable for unattended runs.
 - **Interactive login once** — run `claude` as the `trader` user and complete the login; credentials
   persist under `~trader/.claude` for subsequent headless runs.
 
-`preflight.sh` checks that one of these is in place.
+`preflight.sh` accepts any of these.
 
 ## Scheduling: systemd vs cron
 
