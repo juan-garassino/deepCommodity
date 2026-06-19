@@ -56,6 +56,59 @@ def rule_based(symbols_data: dict[str, dict]) -> list[dict]:
     return out
 
 
+# ---- macro-contextual (global model; torch lazy) ---------------------------
+
+def _contextual_forecast(symbols, bars_dir, macro_path, ckpt_path, min_conf=0.1):
+    """Run the global contextual model -> per-symbol weekly+daily dir + a regime readout.
+
+    Returns (forecasts_list, regime_dict). The `direction/confidence` use the WEEKLY
+    head (the promoted horizon); per-horizon detail is under `horizons`.
+    """
+    import numpy as np
+    import pandas as pd
+    import torch
+    from deepCommodity.model.contextual_transformer import (
+        ContextualConfig, apply_norm, build_model, predict, proba_to_forecast, regime_readout)
+    from deepCommodity.model.price_transformer import make_features
+    from tools.fetch_macro_features import MACRO_FEATURE_COLS
+
+    ck = torch.load(ckpt_path, map_location="cpu", weights_only=False)
+    cfg = ContextualConfig(**ck["config"])
+    asset_list = ck.get("meta", {}).get("symbols", list(symbols))
+    macro = pd.read_csv(macro_path, index_col="date", parse_dates=True)[MACRO_FEATURE_COLS]
+    regime = regime_readout(macro.iloc[-1].to_dict())
+    macro_win = macro.tail(cfg.macro_seq).to_numpy()
+    model = build_model(cfg); model.load_state_dict(ck["state_dict"])
+
+    px_list, mx_list, aid_list, syms_ok = [], [], [], []
+    for sym in symbols:
+        if sym not in asset_list:
+            continue
+        csv = Path(bars_dir) / f"{sym}.csv"
+        if not csv.exists():
+            continue
+        feats = make_features(pd.read_csv(csv))
+        if len(feats) < cfg.price_seq or len(macro_win) < cfg.macro_seq:
+            continue
+        px_list.append(feats[-cfg.price_seq:]); mx_list.append(macro_win)
+        aid_list.append(asset_list.index(sym)); syms_ok.append(sym)
+    if not syms_ok:
+        return [], regime
+
+    pxn, mxn = apply_norm(np.asarray(px_list, np.float32), np.asarray(mx_list, np.float32), ck["norm"])
+    proba = predict(model, pxn, mxn, np.asarray(aid_list, np.int64))
+    forecasts = []
+    for i, sym in enumerate(syms_ok):
+        wd, wc = proba_to_forecast(proba["weekly"][i], min_conf)
+        dd, dc = proba_to_forecast(proba["daily"][i], min_conf)
+        forecasts.append({
+            "symbol": sym, "direction": wd, "confidence": round(wc, 3),
+            "rationale": f"[contextual:{regime['regime']}] weekly={wd}/{wc:.2f} daily={dd}/{dc:.2f}",
+            "horizons": {"weekly": {"direction": wd, "confidence": round(wc, 3)},
+                         "daily": {"direction": dd, "confidence": round(dc, 3)}}})
+    return forecasts, regime
+
+
 # ---- transformer specialists (torch lazy) ---------------------------------
 
 def _load_price_model(symbol: str):
@@ -243,7 +296,13 @@ def main() -> None:
                    help="optional override of symbols to forecast (else from --input)")
     p.add_argument("--model", default="rule-based",
                    choices=["rule-based", "price", "orderflow", "news",
-                            "fused", "ensemble", "api"])
+                            "fused", "ensemble", "api", "contextual"])
+    p.add_argument("--macro", default=str(ROOT / "data" / "macro" / "features.csv"),
+                   help="macro panel for --model contextual")
+    p.add_argument("--ckpt", default=str(ROOT / "data" / "models" / "contextual.pt"),
+                   help="contextual checkpoint for --model contextual")
+    p.add_argument("--min-conf", type=float, default=0.1)
+    p.add_argument("--out", help="also write the full payload (incl. regime) here as JSON")
     p.add_argument("--bars-dir", default=str(ROOT / "data" / "bars"))
     p.add_argument("--orderflow-dir", default=str(ROOT / "data" / "orderflow"))
     p.add_argument("--news-input", help="path to fetch_news.py JSON for the news/ensemble path")
@@ -270,6 +329,18 @@ def main() -> None:
     forecasts: list[dict] = []
     bars_dir = Path(args.bars_dir)
     of_dir = Path(args.orderflow_dir)
+
+    if args.model == "contextual":
+        forecasts, regime = _contextual_forecast(wanted, bars_dir, args.macro, args.ckpt, args.min_conf)
+        payload = {
+            "generated_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+            "model": "contextual", "regime": regime, "forecasts": forecasts,
+        }
+        print(json.dumps(payload, indent=2))
+        if args.out:
+            Path(args.out).parent.mkdir(parents=True, exist_ok=True)
+            Path(args.out).write_text(json.dumps(payload, indent=2))
+        return
 
     for sym in wanted:
         if args.model == "rule-based":

@@ -98,6 +98,12 @@ All news-text fetchers pass through `deepCommodity/guardrails/sanitize.sanitize_
 | `tools/fetch_history.py` | OHLCV from Binance public / yfinance for training |
 | `tools/train_price_transformer.py` | Colab training entry |
 | `tools/smoke_paper.sh` | end-to-end smoke against OpenAI + Alpaca paper |
+| `tools/fetch_macro_features.py` | global-macro panel (M2/net-liquidity/DXY/total-cap) → `data/macro/features.csv`, **publication-lag-shifted** (leakage-safe) |
+| `tools/build_contextual_dataset.py` | align daily bars + macro (point-in-time) → `data/contextual/dataset.npz` |
+| `tools/train_contextual.py` | train the shared-macro contextual transformer → `data/models/contextual.pt` |
+| `tools/eval_contextual.py` | walk-forward SHIP/NO-SHIP gate vs rule-based baseline (exit 0 = SHIP) |
+| `tools/contextual_alert.py` | Telegram shadow alert from `contextual_signal.json` (regime + biases) |
+| `tools/forecast.py --model contextual` | run the contextual model → per-asset weekly+daily dir + regime |
 
 ## Routines on claude.ai/code/routines (cloud cadence)
 
@@ -284,7 +290,8 @@ Workflow: train on Colab → save to Drive → rclone-sync into `MODELS_HOST_DIR
 - **Phase 7 — news/sentiment model** — rule-based backend live; sklearn + HuggingFace opt-in.
 - **Phase 8 — fused multi-modal** — architecture done; awaits encoders from 5/6.
 - **Phase 9 — router** — wired in `tools/forecast.py`. Ensemble degrades gracefully.
-- **Phase 10 (this round) — six-stream signal layer + position-mgmt routine** — committed; cloud routine prompts ready to deploy.
+- **Phase 10 — six-stream signal layer + position-mgmt routine** — committed; cloud routine prompts ready to deploy.
+- **Phase 11 — macro-contextual forecaster (crypto-first)** — a shared global-macro encoder (M2, net liquidity, DXY, total-crypto-cap) conditions per-asset price encoders → multi-horizon (weekly+daily) direction, trained jointly over BTC/ETH/SOL. `deepCommodity/model/contextual_transformer.py` + `tools/{fetch_macro_features,build_contextual_dataset,train_contextual,eval_contextual}.py`; `forecast.py --model contextual`. **Leakage-safe** (per-series publication lags + train-only norm). Runs in **shadow** (Telegram regime alert via `dc-contextual-signal`) — does **not** size live orders until `dc-train-contextual`'s walk-forward eval beats the rule-based baseline (≥5% acc lift + non-negative PnL edge). Train/infer **off-box** (e2-micro has no torch); equities + serving integration = v2. `make dc-train-contextual`.
 
 ## Conventions
 
