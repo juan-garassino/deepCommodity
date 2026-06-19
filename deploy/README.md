@@ -110,7 +110,39 @@ systemctl list-timers 'deepcommodity-*'
 journalctl -u 'deepcommodity@*.service' -f
 ```
 
-The unit files apply OS-level sandboxing: `ProtectSystem=strict`, `ReadWritePaths=/srv/deepCommodity`, `ProtectHome=read-only`, `NoNewPrivileges=true`. The agent cannot escape the repo even if it tries.
+The unit files apply OS-level sandboxing: `ProtectSystem=strict`, `ReadWritePaths=/srv/deepCommodity /home/trader`, `ProtectHome=read-only`, `NoNewPrivileges=true`. The agent cannot escape the repo even if it tries (`/home/trader` is writable only so headless `claude` can persist its config/cache).
+
+## Reactive watcher (always-on, catalyst-driven)
+
+`deploy/watch_loop.py` is an **always-on** alternative to the fixed `decision` timer: a
+continuous daemon that polls crypto prices for free every few minutes (CoinGecko, no
+Claude/OpenAI cost) and fires a full `decision` pass **only** when something moves or a
+max-interval floor elapses. You get an "always-on agent" feel without burning the
+subscription / API credits on quiet markets. The 3/day trade cap is still code-enforced,
+so more passes = faster reaction, not more trades.
+
+Run it as a service **instead of** `deepcommodity-decision.timer` (don't run both — they'd
+both fire decisions):
+
+```bash
+sudo systemctl disable --now deepcommodity-decision.timer
+sudo systemctl enable  --now deepcommodity-watch.service
+journalctl -u deepcommodity-watch.service -f         # or: tail -f logs/watch.log
+```
+
+Cadence knobs (set in `.env`; conservative defaults shown):
+
+| Env var | Default | Meaning |
+|---|---|---|
+| `DC_WATCH_POLL_SEC` | `300` | how often the cheap free poll ticks (5 min) |
+| `DC_WATCH_MOVE_PCT` | `2.0` | a move ≥ this % since last snapshot is a catalyst |
+| `DC_WATCH_MIN_COOLDOWN_SEC` | `3600` | floor between full passes (rate-limit / cost guard) |
+| `DC_WATCH_MAX_INTERVAL_SEC` | `14400` | fire a pass at least this often even when quiet (4 h) |
+| `DC_WATCH_SYMBOLS` | `BTC,ETH,SOL,AVAX,LINK,ATOM,NEAR` | symbols watched for moves |
+
+The watcher honors the same halt contract as the routines (`KILL_SWITCH` / `DC_HALT` /
+`TRADING_MODE=halt`) and pings Telegram each time it fires (with the reason). `position-mgmt`
+and `weekly-review` stay on their timers.
 
 ### cron (alternative)
 

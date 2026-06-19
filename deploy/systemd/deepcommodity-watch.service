@@ -1,0 +1,29 @@
+[Unit]
+Description=deepCommodity reactive watcher (always-on; fires decision on catalyst/timeout)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=trader
+Group=trader
+WorkingDirectory=/srv/deepCommodity
+Environment=REPO=/srv/deepCommodity
+EnvironmentFile=/srv/deepCommodity/.env
+ExecStart=/usr/bin/python3 /srv/deepCommodity/deploy/watch_loop.py
+Restart=always
+RestartSec=30
+StandardOutput=append:/srv/deepCommodity/logs/watch.log
+StandardError=append:/srv/deepCommodity/logs/watch.log
+
+# Sandboxing. /home/trader is writable so headless claude can persist its config/cache.
+ProtectSystem=strict
+ReadWritePaths=/srv/deepCommodity /home/trader
+ProtectHome=read-only
+NoNewPrivileges=true
+PrivateTmp=true
+LockPersonality=true
+RestrictSUIDSGID=true
+
+[Install]
+WantedBy=multi-user.target
