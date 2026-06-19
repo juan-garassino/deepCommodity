@@ -1,0 +1,10 @@
+[Unit]
+Description=deepCommodity position management (03/09/15/21 UTC — drawdown breaker + close/trail; never opens)
+
+[Timer]
+OnCalendar=*-*-* 03,09,15,21:00:00
+Unit=deepcommodity@position-mgmt.service
+Persistent=true
+
+[Install]
+WantedBy=timers.target

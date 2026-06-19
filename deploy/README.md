@@ -25,9 +25,10 @@ Claude Code itself is the agent — there is no daemon, no event loop, no long-r
 ## Prereqs
 
 - A Linux VPS (Ubuntu 22.04 or Debian 12 tested) **in a Binance-allowed region** (verify `curl -s -o /dev/null -w '%{http_code}' https://api.binance.com/api/v3/ping` returns `200`, not `451`). 1 vCPU + 1 GB RAM is enough for the rule-based forecaster path. Add 4 GB RAM if you want CPU inference of the trained transformer.
-- An Anthropic API key (Claude Code uses your account).
+- **Git auth to clone the repo** — a GitHub read-only **deploy key** on the box, or an HTTPS personal-access token. `install_remote.sh` does not set this up; the clone (or `REPO_URL=git@...`) must already work.
+- **Claude Code auth** — either `ANTHROPIC_API_KEY` in `.env` (headless, recommended) or a one-time interactive `claude` login as the `trader` user. See **Authenticating Claude Code** below.
 - A Telegram bot token + your chat ID (see `tools/notify_telegram.py` docstring).
-- API keys for whichever brokers/sources you need: Binance / Bitfinex / Alpaca / Perplexity / FRED.
+- API keys for whichever brokers/sources you need: Binance / Alpaca / OpenAI / Finnhub / FRED.
 
 ## One-shot install (Ubuntu/Debian)
 
@@ -47,7 +48,7 @@ The script:
 ## Step-by-step manual install
 
 ```bash
-# 1. clone (or rsync) the repo
+# 1. clone (or rsync) the repo  (git auth must already work — deploy key or PAT)
 git clone <repo-url> /srv/deepCommodity
 cd /srv/deepCommodity
 
@@ -57,36 +58,48 @@ pip install -r requirements.txt
 # 3. install Claude Code
 npm install -g @anthropic-ai/claude-code
 
-# 4. populate env
+# 4. populate env  (incl. ANTHROPIC_API_KEY for headless auth — see below)
 cp .env.sample .env
 chmod 600 .env
 $EDITOR .env
 
-# 5. test the heartbeat manually
-./deploy/run_routine.sh heartbeat
-tail -n 30 logs/heartbeat.log
+# 5. preflight gate — must PASS before enabling any trading timer
+./deploy/preflight.sh        # claude+auth, Binance 200-not-451, .env keys, ccxt/alpaca import
 
-# 6. install timers
+# 6. smoke-test a real routine
+./deploy/run_routine.sh decision
+tail -n 60 logs/decision.log
+
+# 7. install timers
 sudo cp deploy/systemd/*.{service,timer} /etc/systemd/system/
 sudo systemctl daemon-reload
 sudo systemctl enable --now deepcommodity-heartbeat.timer
 ```
 
+## Authenticating Claude Code
+
+Routines run `claude -p` headless, so the box needs Claude auth before any timer fires. Two ways:
+
+- **`ANTHROPIC_API_KEY` in `.env`** (recommended for cron/systemd) — `run_routine.sh` sources `.env`,
+  so `claude -p` picks it up automatically. Most reliable for unattended runs.
+- **Interactive login once** — run `claude` as the `trader` user and complete the login; credentials
+  persist under `~trader/.claude` for subsequent headless runs.
+
+`preflight.sh` checks that one of these is in place.
+
 ## Scheduling: systemd vs cron
 
-> **Note:** the new 24/7 schedule uses routines `decision`, `position-mgmt`, `weekly-review`.
-> `crontab.template` is already updated for these — **cron is the quickest path**. The bundled
-> `deploy/systemd/*` unit files still carry the legacy routine names (heartbeat/hourly-research/
-> daily-decision); regenerate them for the new names if you prefer systemd.
-
-Both are wired. **Prefer systemd** — better state visibility (`systemctl status …`), failed-run accounting, sandboxing.
+Both schedulers run the same routines — `decision` (every 4h), `position-mgmt` (03/09/15/21 UTC),
+`weekly-review` (Sun 18:00). The bundled `deploy/systemd/*.timer` units and `crontab.template` are
+in sync. **Prefer systemd** — better state visibility (`systemctl status …`), failed-run accounting,
+sandboxing.
 
 ### systemd (recommended)
 
 ```bash
 sudo systemctl enable --now deepcommodity-heartbeat.timer
-sudo systemctl enable --now deepcommodity-hourly-research.timer   # only after .env populated
-sudo systemctl enable --now deepcommodity-daily-decision.timer
+sudo systemctl enable --now deepcommodity-decision.timer        # only after preflight PASSes
+sudo systemctl enable --now deepcommodity-position-mgmt.timer
 sudo systemctl enable --now deepcommodity-weekly-review.timer
 
 # observe
@@ -146,8 +159,8 @@ If `TELEGRAM_BOT_TOKEN` / `TELEGRAM_CHAT_ID` are unset, all notify calls silentl
 ```
 /srv/deepCommodity/logs/
   heartbeat.log
-  hourly-research.log
-  daily-decision.log
+  decision.log
+  position-mgmt.log
   weekly-review.log
 ```
 

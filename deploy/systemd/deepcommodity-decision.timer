@@ -1,0 +1,10 @@
+[Unit]
+Description=deepCommodity decision (every 4h, 24/7 — crypto always, US equities when open)
+
+[Timer]
+OnCalendar=*-*-* 00,04,08,12,16,20:00:00
+Unit=deepcommodity@decision.service
+Persistent=true
+
+[Install]
+WantedBy=timers.target
