@@ -2,7 +2,7 @@
 
 Guidance for Claude Code working in this repository.
 
-> **GCP migration note (2026-06-07):** Cloud target if/when deployed: **`garassino-ml`** / `europe-west1` (show-and-destroy under €25/mo workspace cap). No deploy infra yet — runs locally. See workspace root `CLAUDE.md` § "GCP architecture".
+> **Deployment (2026-06-19):** Crypto runs on an always-on GCE VM **`dc-trader`** (e2-micro, Ubuntu 22.04) in **`garassino-ai`** / `europe-west1-b` — *not* `garassino-ml` (which stays show-and-destroy). Verified: Binance egress from europe-west1 returns HTTP 200, not the 451 the Anthropic cloud egress hits. Static IP `dc-trader-ip`, SSH via IAP only (tag `dc-trader`), no service account. `garassino-ai` is the always-on project (career-navigator lives there too), so the trading box fits its posture. Headless Claude via `ANTHROPIC_API_KEY` in `.env`; routines run through `deploy/` (systemd/cron). See `deploy/README.md` and workspace root `CLAUDE.md` § "GCP architecture".
 
 ## What this is
 
@@ -272,7 +272,7 @@ Workflow: train on Colab → save to Drive → rclone-sync into `MODELS_HOST_DIR
 
 ## VPS alternative
 
-`deploy/` has a parallel deployment kit (cron + systemd + Telegram alerts on failure). Use this if you want to migrate off managed routines later. `deploy/install_remote.sh` does one-shot Ubuntu/Debian provisioning.
+`deploy/` has a parallel deployment kit (cron + systemd + Telegram alerts on failure) — this is the **required** host for crypto, since Binance geo-blocks the cloud egress (HTTP 451). `deploy/install_remote.sh` does one-shot Ubuntu/Debian provisioning; `deploy/preflight.sh` is the pre-enable gate (claude+auth, Binance 200-not-451, `.env` keys, ccxt/alpaca import — must PASS before any trading timer). The systemd timers (`deepcommodity-{decision,position-mgmt,weekly-review,heartbeat}.timer`) and `crontab.template` both match the live schedule. Headless Claude auth via `ANTHROPIC_API_KEY` in `.env` (or one-time `claude` login as `trader`).
 
 ## Phase status (where each piece sits)
 
