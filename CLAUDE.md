@@ -272,7 +272,9 @@ Workflow: train on Colab → save to Drive → rclone-sync into `MODELS_HOST_DIR
 
 ## VPS alternative
 
-`deploy/` has a parallel deployment kit (cron + systemd + Telegram alerts on failure) — this is the **required** host for crypto, since Binance geo-blocks the cloud egress (HTTP 451). `deploy/install_remote.sh` does one-shot Ubuntu/Debian provisioning; `deploy/preflight.sh` is the pre-enable gate (claude+auth, Binance 200-not-451, `.env` keys, ccxt/alpaca import — must PASS before any trading timer). The systemd timers (`deepcommodity-{decision,position-mgmt,weekly-review,heartbeat}.timer`) and `crontab.template` both match the live schedule. Headless Claude auth via `ANTHROPIC_API_KEY` in `.env` (or one-time `claude` login as `trader`).
+`deploy/` has a parallel deployment kit (cron + systemd + Telegram alerts on failure) — this is the **required** host for crypto, since Binance geo-blocks the cloud egress (HTTP 451). `deploy/install_remote.sh` does one-shot Ubuntu/Debian provisioning; `deploy/preflight.sh` is the pre-enable gate (claude+auth, Binance 200-not-451, `.env` keys, ccxt/alpaca import — must PASS before any trading timer). The systemd timers (`deepcommodity-{decision,position-mgmt,weekly-review,heartbeat}.timer`) and `crontab.template` both match the live schedule. Headless Claude auth via `CLAUDE_CODE_OAUTH_TOKEN` (subscription, from `claude setup-token`) or `ANTHROPIC_API_KEY` in `.env`.
+
+**Reactive watcher (`deploy/watch_loop.py` + `deepcommodity-watch.service`):** an always-on alternative to the fixed `decision` timer — a continuous daemon that polls prices for free (CoinGecko) and fires a full `decision` pass only on a catalyst (`DC_WATCH_MOVE_PCT` move) or a max-interval floor (`DC_WATCH_MAX_INTERVAL_SEC`), with a `DC_WATCH_MIN_COOLDOWN_SEC` floor. Cheap "always-on agent": Claude/OpenAI spent only on catalysts. Run the watcher service **instead of** `decision.timer` (not both); `position-mgmt`/`weekly-review` stay timers. Cadence knobs are env vars (see `deploy/README.md`).
 
 ## Phase status (where each piece sits)
 
