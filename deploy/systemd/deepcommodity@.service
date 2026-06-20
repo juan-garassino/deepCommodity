@@ -10,8 +10,10 @@ Group=trader
 WorkingDirectory=/srv/deepCommodity
 EnvironmentFile=/srv/deepCommodity/.env
 ExecStart=/srv/deepCommodity/deploy/run_routine.sh %i
-StandardOutput=append:/srv/deepCommodity/logs/%i.log
-StandardError=append:/srv/deepCommodity/logs/%i.log
+# run_routine.sh owns per-routine logging (logs/%i.log) as the trader user.
+# Do NOT add StandardOutput=append here — systemd opens append targets as root,
+# which then blocks the trader process from writing the same file (Permission denied).
+# systemd captures any stray stdout/stderr to the journal.
 
 # Sandboxing — keep the routine away from anything outside the repo.
 # /home/trader is writable so headless claude can persist its config/cache.
