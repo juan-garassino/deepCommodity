@@ -1,0 +1,11 @@
+[Unit]
+Description=deepCommodity self-update every 10 min
+
+[Timer]
+OnBootSec=3min
+OnUnitActiveSec=10min
+Persistent=true
+Unit=deepcommodity-selfupdate.service
+
+[Install]
+WantedBy=timers.target

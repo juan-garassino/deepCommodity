@@ -153,6 +153,30 @@ crontab -e
 
 No sandboxing, but identical scheduling behavior. Use this only if your VPS does not run systemd.
 
+## Continuous deployment (paper)
+
+Pull-based: a `deepcommodity-selfupdate.timer` on the VM runs `deploy/selfupdate.sh`
+every 10 min — it `git pull`s the deploy branch (`DC_DEPLOY_BRANCH`, default `develop`),
+reinstalls the systemd units, reinstalls deps only if `requirements.txt` changed,
+restarts the watcher only if its code changed, and pings Telegram. So **merge to
+`develop` → live on the paper VM within ~10 min**, no inbound access / no secrets.
+
+Safety: it **skips while a routine (`claude -p`) is running** (never swaps code under
+a routine), no-ops when already up to date, and runs git as the `trader` owner.
+Branch protection requiring the `ci` check (`.github/workflows/ci.yml`) means the
+deploy branch only ever holds tested code.
+
+Enable on the box:
+```bash
+sudo cp deploy/systemd/deepcommodity-selfupdate.{service,timer} /etc/systemd/system/
+sudo systemctl daemon-reload
+sudo systemctl enable --now deepcommodity-selfupdate.timer
+```
+
+**Live (mainnet) is deliberately NOT auto-deployed** — that's a future gated GitHub
+Action (`develop→main` PR + a required-reviewer Environment), built when there's real
+money behind it. The pull timer is for the paper VM only.
+
 ## Halting
 
 Three layers, in increasing severity:

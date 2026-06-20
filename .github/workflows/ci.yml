@@ -1,0 +1,51 @@
+name: ci
+
+# Test gate. Make this a REQUIRED status check on `develop` and `main` (branch
+# protection) so only tested code can merge — that's the real safety, regardless
+# of how it later deploys.
+on:
+  pull_request:
+    branches: [main, develop]
+  push:
+    branches: [main, develop]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install deps
+        run: |
+          python -m pip install -U pip
+          pip install -r requirements.txt
+          pip install "torch==2.2.2" --index-url https://download.pytorch.org/whl/cpu
+          pip install pytest-timeout
+      - name: Tests
+        # per-test timeout so a flaky network-dependent test fails fast instead of hanging
+        run: pytest -q --timeout=240 -p no:cacheprovider
+
+  smoke-import:
+    # fast feedback: catch sys.path / __init__ breakage without running the suite
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: pip install -r requirements.txt
+      - name: Import public modules
+        run: |
+          python -c "import deepCommodity.portfolio.backtest, deepCommodity.portfolio.sleeves, deepCommodity.portfolio.signals, deepCommodity.portfolio.risk, deepCommodity.portfolio.portfolios"
+          python -c "import tools.forecast, tools.backtest_portfolios, tools.fetch_funding, tools.fetch_macro_features, tools.contextual_alert"
+          python -c "import deepCommodity.guardrails.preflight, deepCommodity.execution.portfolio, deepCommodity.universe"
