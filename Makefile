@@ -87,6 +87,7 @@ count_lines:
   dc-s05-backtest dc-s06-heartbeat \
   dc-s06-fetch-macro dc-s06-build-contextual dc-s06-train-contextual \
   dc-s06-train-contextual-fast dc-s06-eval-contextual dc-train-contextual dc-contextual-signal \
+  dc-s07-fetch-funding dc-s07-backtest-portfolios \
   dc-pipeline dc-pipeline-gpu dc-pipeline-fast dc-pipeline-full \
   dc-pipeline-equity dc-pipeline-equity-gpu dc-pipeline-all-markets \
   dc-train-all dc-train-all-fast \
@@ -351,6 +352,23 @@ dc-contextual-signal:
 	$(ENV) python3 tools/forecast.py --model contextual --symbols $(CONTEXTUAL_SYMBOLS) \
 	  --out data/macro/contextual_signal.json
 	$(ENV) python3 tools/contextual_alert.py
+
+# -----------------------------------------------------------------------------
+# Stage 07 — Portfolio research (market-neutral L/S + funding carry; offline)
+# -----------------------------------------------------------------------------
+PORTFOLIO_SYMBOLS ?= BTC,ETH,SOL,BNB,XRP,ADA,DOGE,AVAX,LINK,DOT,MATIC,ATOM,NEAR,LTC,BCH
+
+dc-s07-fetch-funding:
+	@echo "  DC  STAGE 07 — FETCH FUNDING RATES  (Binance perps)"
+	$(ENV) python3 tools/fetch_funding.py --symbols $(PORTFOLIO_SYMBOLS) --days 720
+	@echo "  [OK] data/funding/"
+
+dc-s07-backtest-portfolios: dc-s07-fetch-funding
+	@echo "  DC  STAGE 07 — BACKTEST RISK PORTFOLIOS  (carry/neutral/directional/beta_lite)"
+	$(ENV) python3 tools/fetch_history.py --symbols $(PORTFOLIO_SYMBOLS) \
+	  --asset-class crypto --interval 1d --days 720 --out-dir data/bars
+	$(ENV) python3 tools/backtest_portfolios.py --symbols $(PORTFOLIO_SYMBOLS)
+	@echo "  [OK] data/reports/portfolio_backtest_*.md"
 
 # -----------------------------------------------------------------------------
 # Stage 06 — Heartbeat (canary, no keys, no models needed)
