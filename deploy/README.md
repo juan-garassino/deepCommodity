@@ -174,7 +174,7 @@ sudo systemctl enable --now deepcommodity-selfupdate.timer
 ```
 
 **Live (mainnet) is deliberately NOT auto-deployed** — that's a future gated GitHub
-Action (`develop→main` PR + a required-reviewer Environment), built when there's real
+Action (`develop→master` PR + a required-reviewer Environment), built when there's real
 money behind it. The pull timer is for the paper VM only.
 
 ## Halting
