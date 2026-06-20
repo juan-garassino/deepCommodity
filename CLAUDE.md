@@ -2,7 +2,7 @@
 
 Guidance for Claude Code working in this repository.
 
-> **Deployment (2026-06-19):** Crypto runs on an always-on GCE VM **`dc-trader`** (e2-micro, Ubuntu 22.04) in **`garassino-ai`** / `europe-west1-b` — *not* `garassino-ml` (which stays show-and-destroy). Verified: Binance egress from europe-west1 returns HTTP 200, not the 451 the Anthropic cloud egress hits. Static IP `dc-trader-ip`, SSH via IAP only (tag `dc-trader`), no service account. `garassino-ai` is the always-on project (career-navigator lives there too), so the trading box fits its posture. Headless Claude via `ANTHROPIC_API_KEY` in `.env`; routines run through `deploy/` (systemd/cron). See `deploy/README.md` and workspace root `CLAUDE.md` § "GCP architecture".
+> **Deployment (2026-06-19):** Crypto runs on an always-on GCE VM **`dc-trader`** (e2-micro, Ubuntu 22.04) in **`garassino-ai`** / `europe-west1-b` — *not* `garassino-ml` (which stays show-and-destroy). Verified: Binance egress from europe-west1 returns HTTP 200, not the 451 the Anthropic cloud egress hits. Static IP `dc-trader-ip`, SSH via IAP only (tag `dc-trader`), no service account. `garassino-ai` is the always-on project (career-navigator lives there too), so the trading box fits its posture. Headless Claude via `ANTHROPIC_API_KEY` in `.env`; routines run through `deploy/` (systemd/cron). **CI/CD (paper):** `.github/workflows/ci.yml` gates merges (tests + smoke-import); the VM runs `deepcommodity-selfupdate.timer` (`deploy/selfupdate.sh`) which pulls the deploy branch (`develop`) every 10 min — so **merge to `develop` → on the paper VM within ~10 min**. Live (mainnet) deploy is a future gated `develop→main` Action, not auto. See `deploy/README.md` and workspace root `CLAUDE.md` § "GCP architecture".
 
 ## What this is
 
