@@ -1,0 +1,12 @@
+[Unit]
+Description=deepCommodity self-update (pull deploy branch, reinstall units)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+# runs as root: needs to write /etc/systemd/system and call systemctl.
+# git operations inside the script drop to the trader owner.
+Environment=REPO=/srv/deepCommodity
+Environment=DC_DEPLOY_BRANCH=develop
+ExecStart=/srv/deepCommodity/deploy/selfupdate.sh
