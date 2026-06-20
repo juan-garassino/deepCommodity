@@ -1,0 +1,23 @@
+# never bake secrets or local state into the image
+.env
+.env.*
+*.key
+*.pem
+secrets.*
+service-account*.json
+id_rsa*
+.netrc
+KILL_SWITCH
+
+# vcs / caches / heavy local artifacts
+.git
+.githooks
+**/__pycache__/
+*.pyc
+.pytest_cache/
+.ipynb_checkpoints/
+logs/
+data/
+models/
+*.ckpt
+*.pt

@@ -1,0 +1,41 @@
+# Named risk-managed portfolios. Each blends the three sleeves (xs / carry / dir)
+# and sets hard risk constraints. Consumed by tools/backtest_portfolios.py.
+# blend weights are risk-budget shares; the backtester vol-targets + caps the result.
+portfolios:
+  carry:                 # P1 — conservative: steady low-DD carry income
+    blend: {xs: 0.30, carry: 0.70, dir: 0.00}
+    max_gross: 1.5
+    max_name: 0.15
+    vol_target: 0.06
+    de_lever_dd: -0.04
+    halt_dd: -0.08
+
+  neutral:               # P2 — balanced: regime-independent alpha + carry + kicker
+    blend: {xs: 0.45, carry: 0.35, dir: 0.20}
+    max_gross: 2.0
+    max_name: 0.20
+    vol_target: 0.12
+    de_lever_dd: -0.06
+    halt_dd: -0.12
+
+  directional:           # P3 — aggressive: rides the regime
+    blend: {xs: 0.30, carry: 0.15, dir: 0.55}
+    max_gross: 3.0
+    max_name: 0.25
+    vol_target: 0.25
+    de_lever_dd: -0.10
+    halt_dd: -0.20
+
+  beta_lite:             # P4 — long-only, runs on the CURRENT guardrails (early-live bridge)
+    blend: {xs: 0.60, carry: 0.00, dir: 0.40}
+    long_only: true
+    max_gross: 1.0
+    max_name: 0.20
+    vol_target: 0.15
+    de_lever_dd: -0.04
+    halt_dd: -0.08
+
+# cost assumptions for the backtest (bps)
+costs:
+  taker_bps: 6.0         # round-trip-ish per unit turnover
+  borrow_bps_ann: 300.0  # financing on gross > 1x

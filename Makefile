@@ -85,6 +85,9 @@ count_lines:
   dc-s03-train-equity dc-s03-train-equity-gpu \
   dc-s04-train-orderflow dc-s04-train-orderflow-gpu \
   dc-s05-backtest dc-s06-heartbeat \
+  dc-s06-fetch-macro dc-s06-build-contextual dc-s06-train-contextual \
+  dc-s06-train-contextual-fast dc-s06-eval-contextual dc-train-contextual dc-contextual-signal \
+  dc-s07-fetch-funding dc-s07-backtest-portfolios \
   dc-pipeline dc-pipeline-gpu dc-pipeline-fast dc-pipeline-full \
   dc-pipeline-equity dc-pipeline-equity-gpu dc-pipeline-all-markets \
   dc-train-all dc-train-all-fast \
@@ -308,6 +311,64 @@ dc-s05-backtest:
 	@echo ""
 	@echo "  To compare against the trained transformer, run the Colab notebook"
 	@echo "  cell that loads $(MODELS_DIR)/*.pt and uses TransformerForecaster."
+
+# -----------------------------------------------------------------------------
+# Stage 06b — Macro-contextual forecaster (crypto-first; shadow until eval ships)
+# -----------------------------------------------------------------------------
+CONTEXTUAL_SYMBOLS ?= BTC,ETH,SOL
+CONTEXTUAL_DAYS    ?= 2200
+
+dc-s06-fetch-macro:
+	@echo "  DC  STAGE 06b — FETCH MACRO FEATURES  (FRED + CoinGecko)"
+	$(ENV) python3 tools/fetch_macro_features.py --days $(CONTEXTUAL_DAYS)
+	@echo "  [OK] data/macro/features.csv"
+
+dc-s06-build-contextual: dc-s06-fetch-macro
+	@echo "  DC  STAGE 06b — BUILD CONTEXTUAL DATASET  (daily bars + macro)"
+	$(ENV) python3 tools/fetch_history.py --symbols $(CONTEXTUAL_SYMBOLS) \
+	  --asset-class crypto --interval 1d --days $(CONTEXTUAL_DAYS) --out-dir data/bars
+	$(ENV) python3 tools/build_contextual_dataset.py --symbols $(CONTEXTUAL_SYMBOLS)
+	@echo "  [OK] data/contextual/dataset.npz"
+
+dc-s06-train-contextual: dc-s06-build-contextual
+	@echo "  DC  STAGE 06b — TRAIN CONTEXTUAL TRANSFORMER"
+	$(ENV) python3 tools/train_contextual.py
+	@echo "  [OK] data/models/contextual.pt"
+
+dc-s06-train-contextual-fast: dc-s06-build-contextual
+	$(ENV) python3 tools/train_contextual.py --epochs 1
+
+dc-s06-eval-contextual:
+	@echo "  DC  STAGE 06b — EVAL CONTEXTUAL (SHIP / NO-SHIP)"
+	$(ENV) python3 tools/eval_contextual.py
+
+# fetch -> build -> train -> eval, end to end
+dc-train-contextual: dc-s06-train-contextual dc-s06-eval-contextual
+	@echo "  [OK] contextual pipeline complete — see data/reports/contextual_eval_*.md"
+
+# off-box producer: refresh macro, run the model, emit signal + Telegram shadow alert
+dc-contextual-signal:
+	$(ENV) python3 tools/fetch_macro_features.py --days 400
+	$(ENV) python3 tools/forecast.py --model contextual --symbols $(CONTEXTUAL_SYMBOLS) \
+	  --out data/macro/contextual_signal.json
+	$(ENV) python3 tools/contextual_alert.py
+
+# -----------------------------------------------------------------------------
+# Stage 07 — Portfolio research (market-neutral L/S + funding carry; offline)
+# -----------------------------------------------------------------------------
+PORTFOLIO_SYMBOLS ?= BTC,ETH,SOL,BNB,XRP,ADA,DOGE,AVAX,LINK,DOT,MATIC,ATOM,NEAR,LTC,BCH
+
+dc-s07-fetch-funding:
+	@echo "  DC  STAGE 07 — FETCH FUNDING RATES  (Binance perps)"
+	$(ENV) python3 tools/fetch_funding.py --symbols $(PORTFOLIO_SYMBOLS) --days 720
+	@echo "  [OK] data/funding/"
+
+dc-s07-backtest-portfolios: dc-s07-fetch-funding
+	@echo "  DC  STAGE 07 — BACKTEST RISK PORTFOLIOS  (carry/neutral/directional/beta_lite)"
+	$(ENV) python3 tools/fetch_history.py --symbols $(PORTFOLIO_SYMBOLS) \
+	  --asset-class crypto --interval 1d --days 720 --out-dir data/bars
+	$(ENV) python3 tools/backtest_portfolios.py --symbols $(PORTFOLIO_SYMBOLS)
+	@echo "  [OK] data/reports/portfolio_backtest_*.md"
 
 # -----------------------------------------------------------------------------
 # Stage 06 — Heartbeat (canary, no keys, no models needed)
