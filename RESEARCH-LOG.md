@@ -280,3 +280,39 @@ Smoke-test artifact. Entry price absent — stop/TP rules cannot be applied. No 
 
 ### Anomaly Note: KILL_SWITCH Persistence Gap
 Cloud containers are ephemeral; KILL_SWITCH (gitignored) resets each run. If drawdown breaker arms it in run N, run N+1 starts without it. Reliable cloud halt requires DC_HALT=true in the cloud env. Current DC_HALT=false — no halt warranted; documenting for visibility.
+
+## 2026-06-24 16:08 UTC — decision-2026-06-24-16h
+
+## 2026-06-24 16:08 UTC — decision pass (equities + crypto, Wed US-open)
+
+Session: UTC 16:00 Wed — EQUITIES_OPEN=yes | TRADING_MODE=paper | DC_HALT=false | KILL_SWITCH absent
+
+## Six-Stream Read
+- News (OpenAI) [SOURCE-TYPE 1]: BTC ETF +$85.85M inflows Jun 12 (IBIT led $57.7M); ETH ETF -$4.95M outflows Jun 12 (4th consecutive day). SPY +0.60% today, QQQ +0.26%. No AI capex, biotech, defense, or energy catalysts in last 4h.
+- On-chain (Binance): FAILED — 451 geo-blocked (expected from cloud egress)
+- Regime/correlation: FAILED — insufficient data
+- FedWatch: FAILED — yfinance/FRED unreachable
+- Insider (OpenInsider): 0 cluster buys
+- 8-K material events (SEC EDGAR) [SOURCE-TYPE 2]: NVDA 8-K Jun-18 (Item 8.01); AVGO 8-K Jun-18 + Jun-11 (Item 8.01); all stale 6+ days, generic Other Events, content unknown
+- Earnings calendar: 0 upcoming in 7d
+
+## Active Themes: NONE
+Only 2 source-types available (news + 8-K). News has no fresh equity sector catalysts today. 8-K filings stale and generic. Cannot activate any theme.
+
+## Market Snapshot
+Crypto (CoinGecko 16:06 UTC): BTC $60,216 (-3.86%/24h, -7.45%/7d); ETH $1,618 (-2.85%/24h, -7.73%/7d); SOL $67.36 (-2.34%/24h, -7.01%/7d); AVAX $6.22 (-8.90%/7d); LINK $7.36 (-10.97%/7d); ATOM $1.63 (-17.77%/7d); NEAR $1.91 (-17.10%/7d). Broad correction across all crypto.
+Equities (Alpaca IEX 16:06 UTC): SPY $738.13 (-2.20%/7d); QQQ $716.39 (-3.69%/7d); AAPL $298.80 (+0.77%/7d, only positive anchor); NVDA $200.78 (-5.50%/7d); RTX $185.68 (+1.10%/7d, only positive equity); OKLO $54.50 (-10.27%/7d).
+
+## Bucket Decisions
+ANCHOR crypto: BTC SHORT 0.873, ETH SHORT 0.886 — long-only, 0 trades.
+ANCHOR equity: All flat 0.0 (forecaster missing 24h data from IEX feed) — below 0.55 gate, 0 trades.
+THEME: 0 active themes, 0 trades.
+GEM (3 scanned): BTW +634%/30d (parabolic meme, REJECT); VELVET -4.49%/24h + empty desc (REJECT); BAS +38.5%/24h pump spike + empty desc (REJECT). 0 gems cleared.
+
+## Anomalies
+- BTC ETF +$85.85M inflows Jun 12 yet BTC -7.45%/7d: ETF demand not supporting spot price
+- ETH ETF 4 consecutive outflow days: consistent institutional selling
+- RTX +1.10%/7d while broad equities -2% to -7%: defense value holding vs growth selloff
+- BAS +38.5%/24h: suspicious single-day pump, no catalyst
+
+## Result: 0 new positions. Risk-off across all asset classes. Capital preserved.
