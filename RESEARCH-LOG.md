@@ -280,3 +280,33 @@ Smoke-test artifact. Entry price absent — stop/TP rules cannot be applied. No 
 
 ### Anomaly Note: KILL_SWITCH Persistence Gap
 Cloud containers are ephemeral; KILL_SWITCH (gitignored) resets each run. If drawdown breaker arms it in run N, run N+1 starts without it. Reliable cloud halt requires DC_HALT=true in the cloud env. Current DC_HALT=false — no halt warranted; documenting for visibility.
+
+## 2026-06-26 08:06 UTC — decision-2026-06-26-08h (crypto-only, Fri)
+
+Session: UTC 08:00 Fri 2026-06-26 | EQUITIES_OPEN=no | TRADING_MODE=paper
+
+Six-stream read:
+- News (OpenAI): BTC $60,336 -2.32%/24h; ETH $1,576 -4.77%/24h. Crypto ETP outflows $1.47B May 16-22 (2nd consecutive, 3rd-largest 2026 outflow). Fed/ECB held rates; cuts case weakening. Big Tech earnings strong; AI capex at record; S&P +10% April. Risk-on equities, risk-off crypto.
+- On-chain (Binance): FAILED (451 geo-block).
+- Correlation matrix: FAILED (insufficient yfinance data).
+- FedWatch: FAILED (yfinance unreachable).
+- Source-types: 1 (news only). Themes require >=2 distinct source-types.
+
+Market snapshot (fetch_crypto 08:04 UTC): BTC $60,336 -2.32%/24h -3.55%/7d | ETH $1,576 -4.77%/24h -6.97%/7d | SOL $70.56 +1.87%/24h +3.38%/7d (lone green) | AVAX $6.30 -3.47%/24h | LINK $7.31 -2.82%/24h | ATOM $1.62 -2.41%/24h -10.84%/7d | NEAR $1.84 -6.30%/24h -12.87%/7d
+
+Active themes: NONE (only 1 source-type).
+
+Forecasts (rule-based): BTC SHORT 0.678 | ETH SHORT 0.849 | SOL LONG 0.669 | AVAX FLAT 0.40 | LINK SHORT 0.841 | ATOM SHORT 1.0 | NEAR SHORT 1.0
+
+Bucket decisions:
+- ANCHOR (BTC, ETH): Both SHORT — long-only; 0 trades.
+- THEME: 0 active themes (1 source-type, need >=2); 0 trades.
+- GEM (BTW/VELVET/BAS/JTO/SKYAI): Rank data missing; no 100-char news thesis in broad selloff; all rejected.
+
+Anomalies:
+- SOL bucking trend: +1.87%/24h vs BTC -2.32%, ETH -4.77% — Solana ecosystem rotation.
+- ETP outflows 2nd consecutive week: institutional selling despite equities risk-on.
+- Equities/crypto decoupling: AI capex cycle accelerating, crypto not participating.
+- NEAR -12.87%/7d, ATOM -10.84%/7d: deepest alt selling.
+
+Result: 0 new positions. Capital preserved.
