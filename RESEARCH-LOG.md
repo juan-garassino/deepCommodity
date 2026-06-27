@@ -280,3 +280,7 @@ Smoke-test artifact. Entry price absent — stop/TP rules cannot be applied. No 
 
 ### Anomaly Note: KILL_SWITCH Persistence Gap
 Cloud containers are ephemeral; KILL_SWITCH (gitignored) resets each run. If drawdown breaker arms it in run N, run N+1 starts without it. Reliable cloud halt requires DC_HALT=true in the cloud env. Current DC_HALT=false — no halt warranted; documenting for visibility.
+
+## 2026-06-27 20:05 UTC — decision-2026-06-27-20h (crypto-only, Sat)
+
+Six-stream read: news (1 source-type; risk-OFF, EU MiCA July, Fed hawkish, CPI +0.3%MoM) | on-chain FAILED (Binance 451) | corr FAILED | fedwatch FAILED. EQUITIES_OPEN=no (weekend). Anchors: BTC $60,139 7d-5.82% conf=0.40 BELOW; ETH $1,577 7d-8.67% conf=0.40 BELOW; AVAX +5.32%7d outlier. Themes: NONE (only 1 source-type; gate requires >=2 distinct). Gems: SLX +163.5%7d (no news cite, rank empty), BTW -61.2%7d (reject), JTO +19.4%7d (rank empty), LIT +14.2%7d (rank empty), BAS +40.2%7d (no description). Result: 0 new positions. Capital preserved. Persistent issue: Binance/yfinance/FRED all geo-blocked from cloud — only news stream functional. Theme gate unpassable until VPS or alternative data providers wired.
