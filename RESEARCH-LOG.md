@@ -280,3 +280,58 @@ Smoke-test artifact. Entry price absent — stop/TP rules cannot be applied. No 
 
 ### Anomaly Note: KILL_SWITCH Persistence Gap
 Cloud containers are ephemeral; KILL_SWITCH (gitignored) resets each run. If drawdown breaker arms it in run N, run N+1 starts without it. Reliable cloud halt requires DC_HALT=true in the cloud env. Current DC_HALT=false — no halt warranted; documenting for visibility.
+
+## 2026-07-01 12:11 UTC — 2026-07-01 12:10 UTC — decision pass (crypto-only, Wed pre-open)
+
+## Six-Stream Read
+
+### Source-Type Tally
+- [1] NEWS (OpenAI): Available
+- [2] ON-CHAIN: FAILED — Binance 451 geo-blocked
+- [3] CORRELATION: FAILED — insufficient data (yfinance unreachable)
+- [4] FEDWATCH: FAILED — yfinance unreachable
+Total distinct source-types: 1/2 required. No themes can activate.
+
+### Market Snapshot (per fetch_crypto 12:09 UTC)
+- BTC: $58,430 | 24h -0.86% | 7d -6.98% (down from $63,887 on Jun 13; -8.5% in 18 days)
+- ETH: $1,566 | 24h -0.36% | 7d -6.58% (down from $1,679 on Jun 13)
+- SOL: $74.62 | 24h +2.03% | 7d +6.90% (sole green large-cap)
+- AVAX: $6.64 | 24h +2.24% | 7d +2.97%
+- LINK: $7.20 | 24h -0.38% | 7d -5.63%
+- ATOM: $1.51 | 24h +0.59% | 7d -8.27%
+- NEAR: $1.78 | 24h -2.81% | 7d -9.58%
+- DATA ERROR: DOT returned $0.00259 mcap $2.16M — wrong CoinGecko coin mapping; real DOT ~$5 / ~$8B mcap
+
+### News Digest (OpenAI provider)
+- BTC ETF: ~$2.7B net outflows over 2 weeks (institutional distribution)
+- ETH ETF: $296.5M single-day inflow cited (stale article date — Jul 21 in source)
+- Altcoin rotation: capital moving from BTC/ETH into HYPE, XRP, SOL per CryptoSlate
+- Bitcoin-IPC L2 PoS subnets paper — technical, no immediate price catalyst
+- US equities risk-on: SPY +0.74%, QQQ +1.63%
+
+### Forecasts (rule-based)
+- BTC: SHORT 0.849 | ETH: FLAT 0.40 | SOL: LONG 0.845 | AVAX: LONG 0.649
+- LINK: FLAT 0.40 | ATOM: FLAT 0.40 | NEAR: SHORT 0.979
+
+### Active Themes: NONE (only 1 source-type; need >=2)
+
+### Hidden Gems (5 scanned — all rejected)
+- BTW: 30d +431% but 7d -34.3% — momentum collapse
+- BP (Backpack): 30d +285%, 24h +12.1% — rank_smallcaps empty; no news thesis
+- TAC: 24h -8.87%, no description — reject
+- BAS: 7d +32%, no description — cannot write thesis
+- LIT (Lighter DeFi): 7d +20.7%, 24h -1.82% — rank_smallcaps empty; no news catalyst
+
+### Bucket Decisions
+- ANCHOR: BTC SHORT (wrong direction); ETH flat 0.40 (below 0.55). 0 trades.
+- THEME: No active themes. 0 trades.
+- GEM: Scorer returned empty. 0 trades.
+
+### Anomalies
+- SOL +6.9% 7d vs BTC -7.0% 7d: altcoin rotation underway; watch for on-chain confirmation
+- BTC -8.5% since Jun 13: continued correction; $55K support in focus
+- BP (Backpack) +12.1% 24h: exchange token spike; insufficient ranking data
+- DOT price data error: CoinGecko mapping wrong entity (~$2M mcap vs real ~$8B+)
+- BTC ETF 2-week outflow ~$2.7B: institutional distribution ongoing
+
+### Result: 0 new positions. Capital preserved.
