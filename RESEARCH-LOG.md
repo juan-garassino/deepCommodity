@@ -280,3 +280,19 @@ Smoke-test artifact. Entry price absent — stop/TP rules cannot be applied. No 
 
 ### Anomaly Note: KILL_SWITCH Persistence Gap
 Cloud containers are ephemeral; KILL_SWITCH (gitignored) resets each run. If drawdown breaker arms it in run N, run N+1 starts without it. Reliable cloud halt requires DC_HALT=true in the cloud env. Current DC_HALT=false — no halt warranted; documenting for visibility.
+
+## 2026-07-04 04:09 UTC — decision-2026-07-04-04h (crypto-only, Sat)
+
+Saturday 04:00 UTC. Crypto-only (EQUITIES_OPEN=no). TRADING_MODE=paper | BINANCE_TESTNET=true.
+
+Six-stream: News OK (ETH ETF +6105 ETH inflow Jul3, BlackRock ETHA $29.7M Jul2; BTC ETF -588 BTC Jul3 / -22189 BTC 7d; XRP ETF $1.38B AUM; risk-on tone). On-chain/corr/fed: FAILED (geo-block/unreachable). Source-types: 1 only — no active themes.
+
+Market: BTC $62,587 (+2.1%/24h +3.95%/7d) | ETH $1,752 (+2.87%/24h +10.78%/7d) | SOL $82.71 (+2.63%/24h +14.77%/7d) | NEAR $2.01 (+2.62%/24h +11.12%/7d).
+
+Forecasts (rule-based): BTC LONG 0.697 | ETH LONG 1.0 | SOL LONG 1.0 | NEAR LONG 1.0 | LINK LONG 0.853 | AVAX LONG 0.708 | ATOM flat 0.40.
+
+Anchor: ETH (conf 1.0>=0.55) and BTC (conf 0.697>=0.55) both pass gate but risk_check BLOCKED — Binance testnet geo-blocked (451) from cloud. Fail-closed. 0 trades.
+Theme: 0 active themes (1 source-type). 0 trades.
+Gems: BTW 7d-37%, VELVET 7d-47%, TAC 24h-14%, MAGMA no-description, GWEI interesting (ETH blockspace, 24h+10.3%) but rank_smallcaps empty. 0 trades.
+
+Result: 0 new positions. STRUCTURAL: Binance geo-blocks cloud egress on every pass (4th consecutive). VPS required for crypto execution.
