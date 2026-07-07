@@ -280,3 +280,61 @@ Smoke-test artifact. Entry price absent — stop/TP rules cannot be applied. No 
 
 ### Anomaly Note: KILL_SWITCH Persistence Gap
 Cloud containers are ephemeral; KILL_SWITCH (gitignored) resets each run. If drawdown breaker arms it in run N, run N+1 starts without it. Reliable cloud halt requires DC_HALT=true in the cloud env. Current DC_HALT=false — no halt warranted; documenting for visibility.
+
+## 2026-07-07 20:12 UTC — decision-2026-07-07-20h
+
+## Decision Pass — 2026-07-07 20:00 UTC
+
+### Session Context
+EQUITIES_OPEN=yes (Tuesday 20:xx UTC). TRADING_MODE=paper. No KILL_SWITCH. DC_HALT=false.
+
+### Six-Stream Read
+1. **News** (OpenAI): Working ✓
+   - BTC ETF: +$253.71M daily inflow (4,206 BTC) — blockchain.news Jul 7
+   - ETH ETF: +$21.14M daily inflow (11,955 ETH) — kucoin.com Jul 7
+   - DJIA record 53,060 (+1.1%), S&P 500 7,537 (+0.7%), Nasdaq 26,121 (+1.1%)
+   - Tech rotation into cloud stocks +1.65% (today)
+   - Semiconductor sell-off due to DeepSeek AI competition concerns
+   - Weak June jobs report: 57K new jobs (expected ~200K) → reduced Fed rate-hike expectations
+   - Risk-on sentiment prevailing in equities; crypto modestly positive
+2. **On-chain** (Binance): FAILED (451 geo-block)
+3. **Cross-asset regime**: FAILED (insufficient data)
+4. **FedWatch**: FAILED (yfinance unreachable)
+5. **Insider transactions**: Working but 0 cluster buys
+6. **8-K Filings**: Working — NVDA (Item 5.02 Jul 2), AMD (Item 5.02 Jul 1), OKLO/LMT/RTX/MSFT/GOOGL all recent filings but routine administrative (officer departures, security votes) — no material business catalysts
+7. **Earnings**: Working but 0 events in 7-day window
+
+### Active Source-Types With Signals: NEWS ONLY (1 of 7 streams)
+On-chain, regime, fedwatch all failed. Insider = 0 rows. Filings = administrative only.
+→ Cannot satisfy ≥2 distinct source-types for any theme.
+
+### Theme Analysis (all dormant)
+- **ai_compute**: Mixed news (cloud +1.65% positive, semis sell-off from DeepSeek negative); routine NVDA/AMD filings; NOT active.
+- **crypto_proxy** (COIN +7.7%, IBIT +5.8%, ETHA +10.2% 7d): Strong BTC/ETH ETF inflow news; ONLY 1 source-type confirmed; NOT active.
+- **nuclear, defense, ai_power, biotech, weight_loss, others**: No news citations; NOT active.
+
+### Prices (fetch_crypto / fetch_equities 20:10 UTC)
+Crypto anchors: BTC $63,660 | 24h +0.15% | 7d +8.43% / ETH $1,785 | 24h -0.09% | 7d +13.14%
+Crypto large_cap: SOL $81.19 +10.5%/7d | LINK $7.91 +9.8%/7d | NEAR $2.02 +12.0%/7d
+Equity anchors: AAPL $310.69 +10.3%/7d | META $615.41 +9.4%/7d | MSFT $388.74 +5.5%/7d | NVDA $196.97 +1.1%/7d | QQQ $709.48 -2.0%/7d
+
+### Forecasts (rule-based)
+Crypto: BTC flat 0.40 | ETH flat 0.40 | SOL flat 0.40 | LINK flat 0.40 (all 'mixed': high 7d, low/negative 24h)
+Equities: All 0.0 (missing data — Alpaca bar format not parsed by rule-based model)
+
+### Bucket Decisions
+- **ANCHOR**: BTC conf 0.40 < 0.55 gate; ETH conf 0.40 < 0.55 gate. Equity anchors conf 0.0. → 0 trades
+- **THEME**: 0 active themes (only 1 source-type). → 0 trades
+- **GEM**: rank_smallcaps returned empty (format mismatch). Top candidates: RIF (7d +47.9%, Bitcoin L2), ETHFI (7d +35.5%, ETH liquid staking), XPL (7d +16.2%). VELVET rejected (7d -75.6%). Even if scored, gem forecast conf below 0.55 required threshold. → 0 trades
+
+### Anomalies to Watch
+- BTC ETF $253.71M inflow today — largest single-day inflow seen this run cycle; institutional accumulation signal
+- ETH 7d +13.1% outperforming BTC +8.4% — ETH-specific demand narrative (ETF inflows YTD +20,570 ETH)
+- crypto_proxy basket (IBIT +5.8%, ETHA +10.2%, COIN +7.7% all 7d) tracking ETF inflows with leverage
+- AAPL +10.3% / META +9.4% 7d — notable mega-cap equity outperformance
+- NEAR +12.0% 7d — continuing strength from recent pass; no news catalyst identified
+- DeepSeek competition concerns weighing on semiconductor stocks — watch NVDA for vol reset
+- Weak jobs (57K) = rate-cut probability rising → risk-on for long duration/growth assets
+
+### Result
+0 new positions. Capital preserved. Rule-based forecaster below anchor gate for all crypto; equities missing forecast data; no themes activatable with 1 source-type; gem scoring unavailable.
