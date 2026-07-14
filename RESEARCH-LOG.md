@@ -338,3 +338,29 @@ Equities: All 0.0 (missing data — Alpaca bar format not parsed by rule-based m
 
 ### Result
 0 new positions. Capital preserved. Rule-based forecaster below anchor gate for all crypto; equities missing forecast data; no themes activatable with 1 source-type; gem scoring unavailable.
+
+## 2026-07-14 21:09 UTC — position-mgmt 2026-07-14 21:08 UTC
+
+## Position-Mgmt Run — 2026-07-14 21:08 UTC
+
+### Drawdown Check
+check_drawdown.py: NAV unavailable (Binance testnet geo-blocked). armed=false. No KILL_SWITCH armed.
+
+### Open Position Reconciliation
+Parsed TRADE-LOG.md for filled buys without matching filled sells:
+- AAPL 1.0 (paper) | entry 2026-05-09 | fill_price: not recorded | reason: dc-smoke-paper end-to-end
+No crypto positions found in trade log.
+
+### Decision Tree
+- AAPL (equity anchor, smoke-test artifact):
+  Entry price absent → stop (-8%) and TP (+20%) uncomputable. Bucket=anchor: hold unless stop/TP fires. Neither evaluable. US equities closed (21:08 UTC). No action.
+- Crypto: 0 positions.
+
+### Active Theme State (last 3 research entries)
+1. 2026-07-07: all themes DORMANT (1 source-type)
+2. 2026-06-13 13:38: ai_compute, nuclear, defense ACTIVE
+3. 2026-06-13 12:12: ai_compute, nuclear, defense ACTIVE
+AAPL is anchor, not theme → theme decay rule N/A.
+
+### Result
+Sells: 0/3 | Scales: 0 | Stops tightened: 0 | Held: 1 (AAPL anchor, no entry price)
