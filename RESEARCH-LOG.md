@@ -364,3 +364,33 @@ AAPL is anchor, not theme → theme decay rule N/A.
 
 ### Result
 Sells: 0/3 | Scales: 0 | Stops tightened: 0 | Held: 1 (AAPL anchor, no entry price)
+
+## 2026-07-17 00:12 UTC — decision-2026-07-17-00h
+
+## Decision Pass — 2026-07-17 00:00 UTC
+
+### Session Context
+EQUITIES_OPEN=no (Friday 00:xx UTC). Crypto-only. TRADING_MODE=paper | BINANCE_TESTNET=true.
+
+### Six-Stream Read (4 streams attempted)
+1. News (OpenAI): WORKING - BTC $63,719 24h -1.57% 7d +0.82%; ETH $1,862 24h -3.02% 7d +6.60%; BTC ETF $753M inflows Jul 14 ended 4-day slump (coinmarketcap); $239M combined Jul 15 led by IBIT (tokenpost); US equities risk-off SPY -0.53% QQQ -1.61%; chips down on DeepSeek AI competition; BlackRock beat earnings Jul 15; no L1/L2/regulatory news last 4h.
+2. On-chain (Binance): FAILED (451 geo-block)
+3. Cross-asset regime: FAILED (insufficient data)
+4. FedWatch: FAILED (yfinance unreachable)
+Active source-types: NEWS ONLY = 1. All themes DORMANT (require >=2 distinct source-types).
+
+### Forecasts (rule-based)
+BTC flat 0.40 | ETH flat 0.40 | SOL short 0.684 | AVAX short 0.645 | ATOM short 0.645 | LINK flat 0.40 | NEAR flat 0.40 | KAITO LONG 1.0 (24h +11.3% 7d +26.6%).
+
+### Hidden Gems
+KAITO: mcap $205M | 30d +74% | 24h +11.3% | 7d +26.6% | rank 0.77 >=0.65 PASS | conf 1.0 >=0.55 PASS | thesis >=100 chars citing BTC ETF inflow news PASS. ALL GATES CLEAR. risk_check BLOCKED (Binance testnet unreachable; fail-closed). 0 trades.
+LDO rank 0.54 <0.65 REJECT. RIF rank 0.40 <0.65 REJECT.
+
+### Bucket Decisions
+ANCHOR: 0 (BTC/ETH both conf 0.40 below 0.55 gate). THEME: 0 (1 source-type; all dormant). GEM: 0 (KAITO all gates clear but broker unavailable).
+
+### Anomalies
+KAITO +11.3% 24h vs broad market down (BTC -1.57% ETH -3.02%). BTC ETF $753M Jul 14 = largest recent cycle single-day inflow. ETH 7d +6.6% outpacing BTC +0.82%. LDO +22.3% 7d (ETH staking beneficiary; rank below gate). QQQ -1.61% on DeepSeek chip competition concerns.
+
+### Result
+0 new positions. Broker unavailable (Binance testnet geo-blocked; fail-closed gate). KAITO watch-listed: all gem gates clear; execute on VPS in Binance-allowed region.
