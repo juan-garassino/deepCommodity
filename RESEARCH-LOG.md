@@ -394,3 +394,40 @@ KAITO +11.3% 24h vs broad market down (BTC -1.57% ETH -3.02%). BTC ETF $753M Jul
 
 ### Result
 0 new positions. Broker unavailable (Binance testnet geo-blocked; fail-closed gate). KAITO watch-listed: all gem gates clear; execute on VPS in Binance-allowed region.
+
+## 2026-07-20 00:16 UTC — decision-2026-07-20-00h
+
+## Decision Pass — 2026-07-20 00:14 UTC
+
+### Session Context
+EQUITIES_OPEN=no (Monday 00:xx UTC). TRADING_MODE=paper | BINANCE_TESTNET=true. DC_HALT=false. No KILL_SWITCH.
+
+### Six-Stream Read
+1. News (OpenAI): WORKING — BTC ETF 7d net outflow -$57M; ETH ETF 7d net inflow +$69M + staking regulatory clarity; US equities risk-off SPY -0.98% QQQ -1.49%; no AI/biotech/defense/CPI news last 4h.
+2. On-chain (Binance): FAILED (451 geo-block)
+3. Cross-asset regime: FAILED (insufficient data)
+4. FedWatch: FAILED (yfinance unreachable)
+5. Insider/Filings/Earnings: N/A (equities closed)
+Active source-types: NEWS ONLY = 1. All themes DORMANT (require >=2 distinct source-types).
+
+### Prices
+BTC $64,882 +0.11%/24h +1.78%/7d | ETH $1,884 +1.21%/24h +4.35%/7d | SOL $76.60 +1.51%/24h | LINK $8.43 +1.00%/24h +5.46%/7d | NEAR $1.93 -0.37%/24h | AVAX $6.50 -1.23%/24h | ATOM $1.48 -1.28%/24h
+
+### Forecasts (rule-based)
+ETH long 0.717 | LINK long 0.773 | ATOM short 0.775 | BTC/SOL/NEAR/AVAX flat 0.40
+
+### Gem Scan
+US/Talus: rank 0.81 PASS conf 0.40 FAIL (24h -1.67% drags; AI agent infra network; 30d +243%).
+KAITO: rank 0.59 FAIL conf 1.0 PASS (24h +14.37% 7d +39.3%; AI InfoFi; 3rd consecutive pass watch-listed).
+PYTH/SYRUP/ETHFI: both gates fail.
+
+### Bucket Decisions
+ANCHOR: ETH conf 0.717 >= 0.55 -> risk_check BLOCKED (Binance testnet geo-blocked; fail-closed exit=1). 0 trades.
+THEME: 0 active (1 source-type). 0 trades.
+GEM: No symbol passes rank >=0.65 AND conf >=0.55. 0 trades.
+
+### Anomalies
+ETH outperforming BTC 7d; LINK +5.46% 7d persistent; KAITO 3rd consecutive high-conf pass (execute on VPS); ETH ETF staking clarity = potential second source-type if on-chain corroborates.
+
+### Result
+0 new positions. Broker unavailable fail-closed. Capital preserved.
