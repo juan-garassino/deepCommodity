@@ -394,3 +394,41 @@ KAITO +11.3% 24h vs broad market down (BTC -1.57% ETH -3.02%). BTC ETF $753M Jul
 
 ### Result
 0 new positions. Broker unavailable (Binance testnet geo-blocked; fail-closed gate). KAITO watch-listed: all gem gates clear; execute on VPS in Binance-allowed region.
+
+## 2026-07-23 16:17 UTC — decision-2026-07-23-16h
+
+## Decision Pass — 2026-07-23 16:09 UTC
+
+### Session Context
+EQUITIES_OPEN=yes (Thursday 16:09 UTC). TRADING_MODE=paper. No KILL_SWITCH. DC_HALT=false.
+
+### Six-Stream Read
+1. News (OpenAI): WORKING — BTC $64,774 -2.0%/24h; ETH $1,624.95; BTC+ETH ETF $261M outflows Jun 30, $9B 4-month aggregate (risk-off); no Fed/CPI/earnings/AI capex/biotech/defense/energy catalysts past 4h
+2. On-chain (Binance): FAILED (451 geo-block)
+3. Cross-asset regime: FAILED (insufficient data)
+4. FedWatch: FAILED (yfinance unreachable)
+5. Insider transactions: 0 cluster buys
+6. 8-K Filings (SEC EDGAR): WORKING — LMT filed Item 2.02 2026-07-23; RTX filed Item 2.02 2026-07-23
+
+### Active Source-Types
+DEFENSE theme: SEC 8-K Item 2.02 filings (source-1) + news earnings coverage (source-2) = 2 distinct source-types → ACTIVE.
+All other themes: 1 source-type (news only) → dormant.
+
+### Defense Earnings
+LMT Q2 2026: revenue $20.063B +11% YoY; EPS $7.94; FY2026 guidance raised $79.75-81.75B. Stock +11% 7d.
+RTX Q2 2026: revenue $24.7B +14% YoY; adj EPS $1.89 +21% YoY; FCF $2.9B; FY2026 guidance raised $95-96B sales. Stock +8.5% 7d.
+Market: SPY -1.8% 7d, QQQ -3.8% 7d, GOOGL -10.8% 7d, META -8.9% 7d — defense outperforming broad market.
+
+### Forecast
+Rule-based: crypto all flat 0.40 (below 0.55 anchor gate). Equities: conf=0.0 (known format issue). Manual assessment: LMT=0.70, RTX=0.65 (earnings beat + momentum; above 0.50 theme gate).
+
+### Prices
+BTC $64,782 (-1.3%/24h +0.7%/7d) | ETH $1,886.51 (-2.1%/24h +0.8%/7d) | SOL $76.04 (-2.1%) | LMT $572.25 (+11.0%/7d) | RTX $210.09 (+8.5%/7d)
+
+### Decisions
+ANCHOR: 0 (all below gates). THEME: 2 — LMT 5sh + RTX 20sh (paper Alpaca). GEM: 0 (ZAMA rank=1.0 but +26.6% 24h pump + no news citation; KAITO rank=0.527 < 0.65; Binance geo-blocked).
+
+### Watch List
+Defense rotation clear: LMT +11%, RTX +8.5% vs SPY -1.8%. GOOGL/META selloff (-10%/-9% 7d). ZAMA watch for stabilization + news. KAITO (+36.1% 7d) needs news catalyst.
+
+### Result: 2 new positions — LMT order_id=6826cf2f | RTX order_id=a45cb38d. Capital: ~$7,063 paper.
