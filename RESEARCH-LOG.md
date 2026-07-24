@@ -394,3 +394,36 @@ KAITO +11.3% 24h vs broad market down (BTC -1.57% ETH -3.02%). BTC ETF $753M Jul
 
 ### Result
 0 new positions. Broker unavailable (Binance testnet geo-blocked; fail-closed gate). KAITO watch-listed: all gem gates clear; execute on VPS in Binance-allowed region.
+
+## 2026-07-24 00:14 UTC — decision-2026-07-24-00h
+
+## Decision Pass — 2026-07-24 00:12 UTC
+
+Session: UTC 00:00 Friday. EQUITIES_OPEN=no (before 13:00 UTC). Crypto-only. TRADING_MODE=paper. DC_HALT=false. No KILL_SWITCH.
+
+Six-stream read:
+- News (OpenAI) ✓: BTC spot ETF $797M/24h net inflows ($59.66B/30d); ETH spot ETF $452M/24h ($13.90B/30d); Fed 5-10y breakeven at 2% target — neutral macro; no regulatory, exchange, or L1/L2 events.
+- On-chain (Binance): FAILED — 451 geo-block
+- Cross-asset regime: FAILED — insufficient data
+- FedWatch: FAILED — yfinance unreachable
+- Insider / filings: N/A (equities closed)
+Active source-types: NEWS only (1/7). Cannot satisfy >=2 distinct source-types for any theme.
+
+Prices (CoinGecko 00:11 UTC): BTC $64,924 (-1.4%/24h, +1.7%/7d) | ETH $1,874 (-3.0%/24h, +0.5%/7d) | SOL $75.66 (-2.6%/24h) | LINK $8.44 (-1.9%/24h) | NEAR $1.88 (+1.1%/24h) | ATOM $1.42 (-3.2%/24h, -6.1%/7d) | AVAX $6.25 (-5.4%/24h, -4.4%/7d).
+
+Forecasts (rule-based): BTC flat 0.40 | ETH flat 0.40 | SOL flat 0.40 | LINK flat 0.40 | NEAR flat 0.40 | ATOM short 0.805 (long-only, skip) | AVAX short 0.72 (long-only, skip).
+
+Bucket decisions:
+- ANCHOR: BTC 0.40 < 0.55; ETH 0.40 < 0.55 — 0 trades
+- THEME: 1 source-type < 2 required; all themes DORMANT — 0 trades
+- GEM candidates: US/Talus (+204.8%/30d, +7%/7d, $5.1M vol) | KAITO (+131%/30d, +17.5%/7d, $73M vol, AI InfoFi) | UB/Unibase (+78.4%/30d, +58.7%/7d, +15.9%/24h, AI memory layer) | ZAMA (+62.9%/30d, +51.1%/7d, +13%/24h, FHE crypto; $98M vol vs $119M mcap — suspicious 82% turnover) | LDO (+50.1%/30d, -2.2%/24h). rank_smallcaps returned empty (format mismatch) — cannot validate rank>=0.65 — GEM gate blocked. 0 trades.
+
+Result: 0 new positions. Capital preserved.
+
+Anomalies/Watchlist:
+- BTC ETF $797M/24h inflows — largest this cycle (vs $253M on 2026-07-07); institutional acceleration signal
+- BTC/ETH prices -1.4%/-3.0% 24h DESPITE strong inflows — possible accumulation at lower spot prices
+- ATOM -6.1%/7d, AVAX -4.4%/7d — notable underperformers vs anchor basket
+- ZAMA $98M daily vol vs $119M mcap (82% turnover) — monitor for pump before entry consideration
+- UB/Unibase +15.9%/24h, +58.7%/7d — leading gem momentum candidate; watch for rank_smallcaps fix
+- KAITO +17.5%/7d, +131%/30d — AI InfoFi narrative aligned with broader crypto ETF inflow story
