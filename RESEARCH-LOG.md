@@ -427,3 +427,23 @@ Anomalies/Watchlist:
 - ZAMA $98M daily vol vs $119M mcap (82% turnover) — monitor for pump before entry consideration
 - UB/Unibase +15.9%/24h, +58.7%/7d — leading gem momentum candidate; watch for rank_smallcaps fix
 - KAITO +17.5%/7d, +131%/30d — AI InfoFi narrative aligned with broader crypto ETF inflow story
+
+## 2026-07-31 00:17 UTC — decision-2026-07-31-00h
+
+## Decision Pass — 2026-07-31 00:00 UTC
+
+EQUITIES_OPEN=no (Fri 00:xx UTC). TRADING_MODE=paper. DC_HALT=false. No KILL_SWITCH.
+
+Six-stream: News OK (1 source-type); On-chain FAILED (451); Corr FAILED; FedWatch FAILED.
+Source-types: 1 — themes require >=2; all themes DORMANT.
+
+Prices (CoinGecko): BTC $64,743 +1.4%/24h -0.6%/7d | ETH $1,917 +0.8%/24h +1.9%/7d | SOL $74.52 -2.2%/7d | NEAR $1.68 -11.1%/7d
+
+News highlights: $9B BTC+ETH ETF outflows over 4mo (institutional trend); Bitcoin-IPC L2 scaling paper; equities risk-on (tech +5.4%, QQQ +3.34%).
+
+Forecasts (rule-based): BTC flat 0.40 | ETH flat 0.40 | SOL flat 0.40 | NEAR long 0.55 (mean-reversion) | AVAX flat 0.40
+
+Gem scan: BTW (Bitway) rank=0.6707 conf=1.0 +27.7%/7d +59.6%/30d mcap $188M — all gates passed but risk_check BLOCKED (Binance testnet unreachable from cloud, fail-closed).
+
+ANCHOR: BTC 0.40<0.55, ETH 0.40<0.55 → 0 trades. THEME: 0 active. GEM: BTW qualified but broker unavailable → 0 trades.
+Result: 0 new positions. VPS needed for Binance execution.
