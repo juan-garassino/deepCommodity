@@ -447,3 +447,7 @@ Gem scan: BTW (Bitway) rank=0.6707 conf=1.0 +27.7%/7d +59.6%/30d mcap $188M — 
 
 ANCHOR: BTC 0.40<0.55, ETH 0.40<0.55 → 0 trades. THEME: 0 active. GEM: BTW qualified but broker unavailable → 0 trades.
 Result: 0 new positions. VPS needed for Binance execution.
+
+## 2026-08-02 18:09 UTC — weekly-review-bootstrap
+
+Reading state for week ending 2026-08-02. 7-day window 2026-07-26 to 2026-08-02: 0 trades in TRADE-LOG. Decision pass 2026-07-31: BTW gem all gates PASS but risk_check BLOCKED (broker unreachable). Position-mgmt: check_drawdown NAV unavailable each run (Binance testnet 451).
