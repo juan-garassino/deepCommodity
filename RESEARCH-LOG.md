@@ -447,3 +447,29 @@ Gem scan: BTW (Bitway) rank=0.6707 conf=1.0 +27.7%/7d +59.6%/30d mcap $188M — 
 
 ANCHOR: BTC 0.40<0.55, ETH 0.40<0.55 → 0 trades. THEME: 0 active. GEM: BTW qualified but broker unavailable → 0 trades.
 Result: 0 new positions. VPS needed for Binance execution.
+
+## 2026-08-04 20:21 UTC — decision-2026-08-04-20h
+
+## Decision Pass — 2026-08-04 20:19 UTC
+
+Session: UTC 20:xx Tuesday. EQUITIES_OPEN=yes. TRADING_MODE=paper. DC_HALT=false. No KILL_SWITCH.
+
+Six-stream (5 attempted): News OK (OpenAI; AI capex + tech earnings beat; SOURCE-TYPE=NEWS). On-chain FAIL (451). Corr FAIL. FedWatch FAIL. 8-K filings OK (MSFT Jul 29, AAPL Jul 30, GOOGL Jul 22, META Jul 29, AMZN Jul 30 all Item 2.02 earnings; SOURCE-TYPE=FILINGS). Earnings empty. Insider timeout.
+
+Active source-types: equity = 2 (NEWS+FILINGS); crypto = 1 (NEWS only).
+
+Themes: ai_compute ACTIVE (NEWS+FILINGS) — MSFT +26.6%/7d, AMZN +19.9%/7d, GOOGL +15.7%/7d, MRVL +15.4%/7d, AVGO +9.1%/7d, NVDA +7.8%/7d. All other themes DORMANT.
+
+Prices: BTC $64,131 +0.7%/24h | ETH $1,872 +0.5%/24h | ATOM $1.37 +5.1%/7d | AVAX $6.73 +2.9%/7d. SPY $771 +4.4%/7d | QQQ $724 +6.1%/7d | MSFT $493 +26.6%/7d | MRVL $218 +15.4%/7d.
+
+Forecasts (rule-based): Crypto: BTC flat 0.40 | ETH flat 0.40 | ATOM LONG 0.755 | AVAX LONG 0.645. Equity: ALL conf=0.0 missing-data (Alpaca IEX snapshot incompatible with forecaster OHLCV format).
+
+Bucket decisions:
+- ANCHOR crypto: BTC 0.40<0.55, ETH 0.40<0.55 -> 0
+- ANCHOR equity: ALL conf=0.0 (missing data) -> 0
+- THEME ai_compute: active but equity forecaster broken -> 0
+- GEM: rank_smallcaps empty (format mismatch) -> gate blocked -> 0
+
+Result: 0 new positions. Persistent blockers: (1) equity forecaster missing data, (2) Binance 451, (3) rank_smallcaps format. Watchlist: MRVL, BTW/Bitway +22.1%/24h, US/Talus +222.9%/30d.
+
+Systemic: Four recurring tool failures block execution from cloud. Recommend VPS for crypto; engineering fix for equity forecaster and rank_smallcaps needed urgently.
