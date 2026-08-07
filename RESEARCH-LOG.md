@@ -447,3 +447,42 @@ Gem scan: BTW (Bitway) rank=0.6707 conf=1.0 +27.7%/7d +59.6%/30d mcap $188M — 
 
 ANCHOR: BTC 0.40<0.55, ETH 0.40<0.55 → 0 trades. THEME: 0 active. GEM: BTW qualified but broker unavailable → 0 trades.
 Result: 0 new positions. VPS needed for Binance execution.
+
+## 2026-08-07 00:22 UTC — decision-2026-08-07-00h
+
+## Decision Pass — 2026-08-07 00:20 UTC
+
+### Session Context
+EQUITIES_OPEN=no (Friday 00:xx UTC, outside 13-21 UTC window). Crypto-only. TRADING_MODE=paper | BINANCE_TESTNET=true.
+
+### Six-Stream Read (4 streams attempted)
+1. News (OpenAI): FAILED — 429 rate limit; no Perplexity fallback configured
+2. On-chain (Binance): FAILED — 451 geo-block (cloud egress)
+3. Cross-asset regime: FAILED — insufficient data
+4. FedWatch: FAILED — yfinance unreachable
+Active source-types: 0. All themes DORMANT.
+
+### Crypto Prices (CoinGecko 00:20 UTC)
+BTC $64,237 24h=-0.4% 7d=-0.8% | ETH $1,900 24h=-0.1% 7d=-1.1% | SOL $72.63 24h=-1.7% 7d=-2.7% | LINK $8.19 24h=+0.6% 7d=-3.3% | ATOM $1.35 24h=0.0% 7d=+5.3% | AVAX $6.42 24h=-3.1% 7d=-0.3%. Broad market risk-off, modestly negative.
+
+### Forecasts (rule-based)
+BTC flat 0.40 | ETH flat 0.40 | SOL short 0.635 | LINK flat 0.40 | ATOM flat 0.40 | AVAX flat 0.40 | NEAR flat 0.40.
+
+### Hidden Gems (scan_hidden_gems + rank_smallcaps)
+CYS (Cysic, full-stack compute network): rank=0.957 7d=+196% 30d=+151% 24h=-4.2% mcap=$132M. rank>=0.65 PASS; conf 0.40<0.55 FAIL. No news for thesis. Broker geo-blocked.
+BTW (Bitway): rank=0.296 7d=+127% 30d=+201% mcap=$422M. rank<0.65 FAIL.
+KAITO: rank=0.232 7d=-19.9%. rank<0.65 FAIL.
+
+### Bucket Decisions
+ANCHOR: BTC conf 0.40<0.55 FAIL; ETH conf 0.40<0.55 FAIL. 0 trades.
+THEME: 0 active themes (0 source-types, need >=2). 0 trades.
+GEM: CYS triple-blocked (conf<0.55, no news for thesis, Binance geo-blocked). 0 trades.
+
+### DOT Anomaly
+DOT price $0.0022 vs expected ~$3-5. Likely CoinGecko ID/decimal issue. Do not trade until resolved.
+
+### Watchlist
+CYS: Outstanding 7d momentum; watch for 24h recovery >+3%. Thesis angle: ZK compute network for AI workloads (ai_compute/quantum adjacency).
+
+### Result
+0 new positions. Capital preserved. Recommend: verify OpenAI rate limit; VPS handles crypto.
