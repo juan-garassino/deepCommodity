@@ -486,3 +486,29 @@ CYS: Outstanding 7d momentum; watch for 24h recovery >+3%. Thesis angle: ZK comp
 
 ### Result
 0 new positions. Capital preserved. Recommend: verify OpenAI rate limit; VPS handles crypto.
+
+## 2026-08-11 03:11 UTC — position-mgmt 2026-08-11 03:11 UTC
+
+## Position-Mgmt Run — 2026-08-11 03:11 UTC
+
+### Drawdown Check
+check_drawdown.py: NAV unavailable (Binance testnet geo-blocked from cloud egress). armed=false. No KILL_SWITCH armed.
+
+### Open Position Reconciliation
+Parsed TRADE-LOG.md for filled buys without matching filled sells:
+- AAPL 1.0 (paper) | entry 2026-05-09 | fill_price: not recorded | reason: dc-smoke-paper end-to-end
+No crypto positions in trade log.
+
+### Active Theme State (last 3 research entries)
+1. 2026-08-07: all themes DORMANT (0 source-types — news 429, on-chain 451, regime/FedWatch FAILED)
+2. 2026-07-31: all themes DORMANT (1 source-type — news only; requires >=2 distinct)
+3. 2026-07-24: all themes DORMANT (1 source-type — news only; requires >=2 distinct)
+
+### Decision Tree
+- AAPL: anchor; fill_price not recorded → stop (-8%) and TP (+20%) uncomputable. Rule f: hold unless stop/TP fires. Neither evaluable. No action.
+- Theme decay (rule d): N/A — AAPL is anchor, not a theme position.
+- Gem expiry (rule e): N/A — AAPL is anchor, not a gem.
+- Crypto: 0 open positions.
+
+### Result
+Sells: 0/3 | Scales: 0 | Stops tightened: 0 | Held: 1 (AAPL anchor; stop/TP uncomputable — fill_price missing)
