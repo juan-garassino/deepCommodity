@@ -486,3 +486,39 @@ CYS: Outstanding 7d momentum; watch for 24h recovery >+3%. Thesis angle: ZK comp
 
 ### Result
 0 new positions. Capital preserved. Recommend: verify OpenAI rate limit; VPS handles crypto.
+
+## 2026-08-14 00:39 UTC — decision-2026-08-14-00h
+
+## Decision Pass — 2026-08-14 00:36 UTC
+
+### Session Context
+EQUITIES_OPEN=no (Friday 00:36 UTC, outside 13-21 UTC window). Crypto-only. TRADING_MODE=paper | BINANCE_TESTNET=true.
+
+### Six-Stream Read
+1. News (OpenAI): WORKING — BTC $63,364 24h=+0.1% 7d=-1.4%; ETH $1,883 24h=+0.4% 7d=-1.0%; Risk-off macro sentiment; AI-driven earnings strength in semis/cloud; Fed committed to rate reduction; inflation moderated; no fresh ETF flow or L1/L2 catalysts in last 4h.
+2. On-chain (Binance): FAILED — 451 geo-block
+3. Cross-asset regime: FAILED — insufficient data
+4. FedWatch: FAILED — yfinance unreachable
+5. Insider/filings/earnings: N/A (equities closed, UTC hour 00)
+Active source-types: NEWS ONLY = 1. Themes require >=2 distinct source-types -> all themes DORMANT.
+
+### Crypto Prices (CoinGecko 00:37 UTC)
+BTC $63,363 24h=+0.1% 7d=-1.4% | ETH $1,883 24h=+0.4% 7d=-1.0% | SOL $75.94 24h=+1.0% 7d=+4.9% | LINK $8.85 24h=+2.5% 7d=+8.4% | ATOM $1.51 24h=+7.4% 7d=+10.9% | AVAX $6.45 24h=+2.3% 7d=0.0% | NEAR $1.62 24h=+0.9% 7d=-1.3%
+
+### Forecasts (rule-based)
+BTC flat 0.40 | ETH flat 0.40 | SOL long 0.745 | LINK long 0.92 | ATOM long 1.0 | AVAX flat 0.40 | NEAR flat 0.40
+
+### Hidden Gems (rank_smallcaps format resolved this pass)
+APR (aPriori, order-flow layer): rank=0.91 PASS | conf=0.40 <0.55 FAIL
+AKE (Akedo): rank=0.70 PASS | conf=1.0 PASS | 30d=+3464% PUMP; no news citation -> REJECT
+CYS (Cysic, ZK compute): rank=0.50 <0.65 FAIL
+H (Humanity): rank=0.31 <0.65 FAIL; UB (Unibase): rank=0.0 FAIL
+
+### Bucket Decisions
+ANCHOR: BTC conf 0.40<0.55 FAIL; ETH conf 0.40<0.55 FAIL -> 0 trades
+THEME: 1 source-type <2 required; all themes DORMANT -> 0 trades
+GEM: APR conf FAIL; AKE pump-reject + no news citation -> 0 trades
+Total: 0 new positions. Capital preserved.
+
+### Watchlist
+ATOM +7.4%/24h +10.9%/7d conf=1.0: strongest crypto momentum. LINK +2.5%/24h +8.4%/7d conf=0.92. APR rank=0.91 highest gem rank this cycle; watch for 24h recovery. AKE 53% vol/mcap turnover: pump-profile, avoid. 8 consecutive 0-trade passes; VPS required for Binance execution.
