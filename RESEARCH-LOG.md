@@ -522,3 +522,32 @@ Total: 0 new positions. Capital preserved.
 
 ### Watchlist
 ATOM +7.4%/24h +10.9%/7d conf=1.0: strongest crypto momentum. LINK +2.5%/24h +8.4%/7d conf=0.92. APR rank=0.91 highest gem rank this cycle; watch for 24h recovery. AKE 53% vol/mcap turnover: pump-profile, avoid. 8 consecutive 0-trade passes; VPS required for Binance execution.
+
+## 2026-08-19 08:24 UTC — decision-2026-08-19-08h
+
+## Decision Pass — 2026-08-19 08:20 UTC
+
+### Session Context
+EQUITIES_OPEN=no (Wednesday 08:20 UTC, outside 13-21 UTC window). Crypto-only. TRADING_MODE=paper | BINANCE_TESTNET=true.
+
+### Six-Stream Read
+1. News (OpenAI): WORKING — BTC $64,234 24h=0.0% 7d=+1.0%; ETH $1,915 24h=+0.7% 7d=+1.5%; Bitcoin ETF 3-day outflow streak ($57.6M) but weekly inflows at 4-month high (security breach driving ETF shift); Fidelity filing to stake ETH in ETF (85% rewards); Intel $15B AI capex; 91% strategists expect AI to drive H2 2026. Risk-off macro sentiment.
+2. On-chain (Binance): FAILED — 451 geo-block (persistent; VPS required)
+3. Cross-asset regime: FAILED — insufficient data
+4. FedWatch: FAILED — yfinance unreachable
+Active source-types: NEWS ONLY = 1. Themes require >=2 -> all DORMANT.
+
+### Crypto Prices (CoinGecko 08:22 UTC)
+BTC $64,234 0.0%/+1.0% | ETH $1,915 +0.7%/+1.5% | SOL $77.04 +1.2%/+1.3% | LINK $9.67 +2.7%/+11.1% | INJ $4.24 +4.6%/-8.0%
+
+### Forecasts (rule-based)
+BTC flat 0.40 | ETH flat 0.40 | SOL flat 0.40 | LINK long 1.000 | FET short 1.00
+
+### Gems (rank_smallcaps)
+CAP (DeFi credit): rank=0.717 PASS; no news citation for thesis -> BLOCKED. AKE rank=0.591 FAIL. H/PIEVERSE/UB rank<0.25 FAIL.
+
+### Bucket Decisions
+ANCHOR: BTC/ETH conf 0.40<0.55 FAIL -> 0. THEME: 1 source-type <2 -> DORMANT -> 0. GEM: thesis gate blocks all -> 0. Total: 0 new positions.
+
+### Watch
+LINK long 1.000 conf 7d=+11.1%; needs on-chain (VPS) or 2nd source-type. ETH Fidelity staking ETF structural catalyst. BTC ETF weekly inflows at 4-month high despite 3-day streak outflows — divergence. 9 consecutive cloud 0-trade passes; VPS handles live crypto.
