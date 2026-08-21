@@ -551,3 +551,35 @@ ANCHOR: BTC/ETH conf 0.40<0.55 FAIL -> 0. THEME: 1 source-type <2 -> DORMANT -> 
 
 ### Watch
 LINK long 1.000 conf 7d=+11.1%; needs on-chain (VPS) or 2nd source-type. ETH Fidelity staking ETF structural catalyst. BTC ETF weekly inflows at 4-month high despite 3-day streak outflows — divergence. 9 consecutive cloud 0-trade passes; VPS handles live crypto.
+
+## 2026-08-21 03:09 UTC — position-mgmt 2026-08-21 09:00 UTC
+
+## Position-Mgmt Run — 2026-08-21 09:00 UTC
+
+### Drawdown Check
+check_drawdown.py: NAV unavailable (Binance testnet geo-blocked from cloud egress). armed=false. No KILL_SWITCH armed.
+
+### Open Position Reconciliation
+Parsed TRADE-LOG.md for filled buys without matching filled sells:
+- AAPL 1.0 (paper) | entry 2026-05-09 | fill_price: not recorded | reason: dc-smoke-paper end-to-end
+No crypto positions found in trade log.
+
+### Active Theme State (last 3 research entries)
+1. 2026-08-19: all themes DORMANT (1 source-type; require >=2)
+2. 2026-08-14: all themes DORMANT (1 source-type; require >=2)
+3. 2026-08-07: all themes DORMANT (0 source-types)
+Theme decay not applicable — AAPL is anchor bucket, not theme.
+
+### Decision Tree
+- AAPL (equity anchor, smoke-test artifact):
+  Entry price absent -> stop (-8%) and TP (+20%) thresholds uncomputable.
+  Bucket=anchor: hold unless stop/TP fires. Neither evaluable without entry price.
+  Market not open (09:00 UTC; equities open 13:00-21:00 UTC).
+  No action.
+- Crypto: 0 open positions.
+
+### Result
+Sells: 0/3 | Scales: 0 | Stops tightened: 0 | Held: 1 (AAPL anchor, no entry price)
+
+### Infrastructure Note
+Binance testnet geo-blocked (HTTP 451) from cloud egress. 9 consecutive cloud 0-trade decision passes. VPS required for crypto execution.
