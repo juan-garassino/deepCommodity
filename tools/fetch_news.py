@@ -31,8 +31,8 @@ sys.path.insert(0, str(ROOT))
 
 from deepCommodity.guardrails.sanitize import sanitize_news  # noqa: E402
 
-OPENAI_URL = "https://api.openai.com/v1/chat/completions"
-OPENAI_MODEL = "gpt-4o-mini-search-preview"     # cheap default; swap to gpt-4o-search-preview for higher quality
+OPENAI_RESPONSES_URL = "https://api.openai.com/v1/responses"
+OPENAI_MODEL = "gpt-4o"   # used with web_search_preview tool via responses API
 PERPLEXITY_URL = "https://api.perplexity.ai/chat/completions"
 PERPLEXITY_MODEL = "llama-3.1-sonar-small-128k-online"
 
@@ -46,34 +46,38 @@ SYSTEM_PROMPT = (
 
 
 def _via_openai(text: str, max_tokens: int) -> tuple[str, list[dict]]:
-    """Returns (digest_text, citation_list). Citations may be empty."""
+    """Returns (digest_text, citation_list) via OpenAI Responses API with web_search_preview."""
     key = os.getenv("OPENAI_API_KEY")
     if not key:
         return "", []
     payload = {
         "model": OPENAI_MODEL,
-        "messages": [
-            {"role": "system", "content": SYSTEM_PROMPT},
-            {"role": "user", "content": text},
-        ],
-        "max_tokens": max_tokens,
+        "tools": [{"type": "web_search_preview"}],
+        "instructions": SYSTEM_PROMPT,
+        "input": text,
+        "max_output_tokens": max_tokens,
     }
     r = requests.post(
-        OPENAI_URL,
+        OPENAI_RESPONSES_URL,
         headers={"Authorization": f"Bearer {key}", "Content-Type": "application/json"},
-        json=payload, timeout=45,
+        json=payload, timeout=60,
     )
     r.raise_for_status()
     data = r.json()
-    msg = data["choices"][0]["message"]
-    content = msg.get("content", "") or ""
-    # Search-preview models return citations under message.annotations[].url_citation
+    # Responses API: output is a list of items; find the message output_text
+    content = ""
     citations = []
-    for ann in msg.get("annotations", []) or []:
-        url = (ann.get("url_citation") or {}).get("url")
-        title = (ann.get("url_citation") or {}).get("title")
-        if url:
-            citations.append({"url": url, "title": title})
+    for item in data.get("output", []):
+        if item.get("type") == "message":
+            for block in item.get("content", []):
+                if block.get("type") == "output_text":
+                    content += block.get("text", "")
+                    for ann in block.get("annotations", []) or []:
+                        if ann.get("type") == "url_citation":
+                            url = ann.get("url", "")
+                            title = ann.get("title", "")
+                            if url:
+                                citations.append({"url": url, "title": title})
     return content, citations
 
 
