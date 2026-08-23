@@ -583,3 +583,42 @@ Sells: 0/3 | Scales: 0 | Stops tightened: 0 | Held: 1 (AAPL anchor, no entry pri
 
 ### Infrastructure Note
 Binance testnet geo-blocked (HTTP 451) from cloud egress. 9 consecutive cloud 0-trade decision passes. VPS required for crypto execution.
+
+## 2026-08-23 16:24 UTC — decision-2026-08-23-16h
+
+## Decision Pass — 2026-08-23 16:20 UTC
+
+### Session Context
+EQUITIES_OPEN=no (Sunday 16:20 UTC). Crypto-only. TRADING_MODE=paper | BINANCE_TESTNET=true.
+
+### Infrastructure Fix
+fetch_news.py migrated from deprecated gpt-4o-search-preview to OpenAI Responses API (gpt-4o + web_search_preview tool). Endpoint: /v1/responses. Migration committed.
+
+### Six-Stream Read
+1. News (OpenAI Responses API): WORKING — No significant catalysts in last 4h.
+2. On-chain (Binance): FAILED — 451 geo-block (persistent; VPS required)
+3. Cross-asset regime: FAILED — insufficient data
+4. FedWatch: FAILED — yfinance unreachable
+Active source-types: NEWS ONLY = 1. Themes require >=2 -> all DORMANT.
+
+### Crypto Prices (CoinGecko 16:22 UTC)
+BTC $77,231 +0.1%/+22.3%7d | ETH $2,442 +1.0%/+29.5%7d | SOL $95.23 +2.2%/+26.5%7d | AVAX $7.53 +1.1%/+17.8%7d | NEAR $1.94 +3.4%/+20.5%7d | LINK $11.46 -1.7%/+22.6%7d | ATOM $1.60 +0.9%/+7.9%7d
+NOTE: Major 7d crypto bull run (+20-30%); BTC up ~$13K from $64K last week.
+
+### Forecasts (rule-based)
+BTC flat 0.40 | ETH long 1.0 | SOL long 1.0 | AVAX long 1.0 | NEAR long 1.0 | ATOM long 0.895 | LINK flat 0.40
+
+### Hidden Gems
+STX rank=0.600 <0.65 FAIL (7d=+88.7% mcap=$439M, Bitcoin L2)
+No gems pass rank>=0.65 gate.
+
+### Bucket Decisions
+ANCHOR: ETH long 1.0>=0.55 PASS gate; risk_check BLOCKED (Binance testnet geo-blocked; fail-closed). 0 trades.
+THEME: 1 source-type <2 required; all DORMANT. 0 trades.
+GEM: No candidates rank>=0.65. 0 trades.
+Total: 0 new positions. VPS required for crypto execution.
+
+### Watchlist
+ETH passes anchor gate; blocked by cloud geo-restriction. VPS needed.
+BTC +22.3% 7d: bull run in progress, no news catalyst visible from cloud.
+STX +88.7% 7d: approaching gem rank gate; watch.
