@@ -583,3 +583,21 @@ Sells: 0/3 | Scales: 0 | Stops tightened: 0 | Held: 1 (AAPL anchor, no entry pri
 
 ### Infrastructure Note
 Binance testnet geo-blocked (HTTP 451) from cloud egress. 9 consecutive cloud 0-trade decision passes. VPS required for crypto execution.
+
+## 2026-08-24 04:25 UTC — decision-2026-08-24-04h
+
+## Decision Pass — 2026-08-24 04:21 UTC
+
+EQUITIES_OPEN=no (Monday 04:21 UTC). Crypto-only. TRADING_MODE=paper.
+
+Six-stream: News OK (1 source-type); On-chain FAILED (451 geo-block); Corr FAILED; FedWatch FAILED. Source-types: 1 — themes DORMANT (need >=2).
+
+MAJOR RALLY: BTC $77,172 (+21.4%/7d) new cycle high in logs. ETH $2,443 (+27.8%/7d) outperforming. SOL $94.18 (+24.3%/7d). NEAR +10.1%/24h. Broad risk-on; no specific catalyst in last 4h news.
+
+Forecasts (rule-based): BTC flat 0.40 | ETH long 1.0 | SOL long 1.0 | AVAX long 1.0 | NEAR long 1.0 | ATOM long 0.86.
+
+Gems (rank_smallcaps format fixed via transform): TRAC rank=0.746 PASS but 7d=-10.1% from live fetch vs +60.5% from scan (ID mismatch, rejected). CASHCAT rank=0.678 PASS conf=1.0 PASS but no news citation, pump profile (rejected). STX rank=0.576 below gate (Bitcoin L2, watch).
+
+Bucket decisions — ANCHOR: ETH conf=1.0 passes gate; risk_check BLOCKED (Binance testnet unreachable, fail-closed). THEME: 0 active. GEM: 0 (data integrity + no news citation). Total: 0 new positions.
+
+Watchlist: ETH strong anchor candidate for VPS execution. NEAR leading 24h mover. STX Bitcoin L2 approaching rank gate if rally continues. TRAC needs CoinGecko ID disambiguation.
