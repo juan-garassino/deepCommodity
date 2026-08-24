@@ -601,3 +601,7 @@ Gems (rank_smallcaps format fixed via transform): TRAC rank=0.746 PASS but 7d=-1
 Bucket decisions — ANCHOR: ETH conf=1.0 passes gate; risk_check BLOCKED (Binance testnet unreachable, fail-closed). THEME: 0 active. GEM: 0 (data integrity + no news citation). Total: 0 new positions.
 
 Watchlist: ETH strong anchor candidate for VPS execution. NEAR leading 24h mover. STX Bitcoin L2 approaching rank gate if rally continues. TRAC needs CoinGecko ID disambiguation.
+
+## 2026-08-24 12:35 UTC — Decision Pass 2026-08-24 12:33 UTC — 0 trades (Binance geo-blocked)
+
+EQUITIES_OPEN=no (Monday 12:33 UTC). Crypto-only. TRADING_MODE=paper. Six-stream: News OK (1 source-type, no catalysts); On-chain FAILED (Binance 451 geo-block); Corr FAILED (yfinance); FedWatch FAILED (yfinance). Source-types: 1 — all themes DORMANT (need >=2). 10th consecutive cloud 0-trade pass. Prices: BTC $78,552 (+23% 7d), ETH $2,496 (+30.8% 7d), SOL $95.59 (+26.4% 7d). Forecasts: BTC long 1.0, ETH long 1.0, SOL long 1.0. Anchor: ETH/BTC pass gate, risk_check BLOCKED (Binance testnet 451 unreachable). Gems: CASHCAT pump/no-citation rejected; STX +100% 7d Bitcoin L2 watchlisted; rank_smallcaps returned empty. Result: 0 new positions. VPS execution required for crypto.
