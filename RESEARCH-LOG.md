@@ -605,3 +605,29 @@ Watchlist: ETH strong anchor candidate for VPS execution. NEAR leading 24h mover
 ## 2026-08-24 12:35 UTC — Decision Pass 2026-08-24 12:33 UTC — 0 trades (Binance geo-blocked)
 
 EQUITIES_OPEN=no (Monday 12:33 UTC). Crypto-only. TRADING_MODE=paper. Six-stream: News OK (1 source-type, no catalysts); On-chain FAILED (Binance 451 geo-block); Corr FAILED (yfinance); FedWatch FAILED (yfinance). Source-types: 1 — all themes DORMANT (need >=2). 10th consecutive cloud 0-trade pass. Prices: BTC $78,552 (+23% 7d), ETH $2,496 (+30.8% 7d), SOL $95.59 (+26.4% 7d). Forecasts: BTC long 1.0, ETH long 1.0, SOL long 1.0. Anchor: ETH/BTC pass gate, risk_check BLOCKED (Binance testnet 451 unreachable). Gems: CASHCAT pump/no-citation rejected; STX +100% 7d Bitcoin L2 watchlisted; rank_smallcaps returned empty. Result: 0 new positions. VPS execution required for crypto.
+
+## 2026-08-25 03:10 UTC — position-mgmt 2026-08-25
+
+### Drawdown Check
+check_drawdown.py: NAV unavailable (Binance testnet geo-blocked from cloud egress). armed=false. No KILL_SWITCH armed.
+
+### Open Position Reconciliation
+- AAPL 1.0 (paper) | entry 2026-05-09 | fill_price: not recorded | bucket: anchor | reason: dc-smoke-paper end-to-end
+No crypto positions found in trade log.
+
+### Active Theme State (last 3 research entries)
+1. 2026-08-24 12:35: all themes DORMANT (1 source-type; require >=2)
+2. 2026-08-24 04:21: all themes DORMANT (1 source-type; require >=2)
+3. 2026-08-19 08:20: all themes DORMANT (1 source-type; require >=2)
+Theme decay not applicable — AAPL is anchor bucket, not theme.
+
+### Decision Tree
+- AAPL (equity anchor, smoke-test artifact): entry price absent -> stop/TP uncomputable -> hold.
+- Crypto: 0 open positions.
+
+### Market Context
+Major rally: BTC $78,552 (+23%/7d), ETH $2,496 (+30.8%/7d), SOL $95.59 (+26.4%/7d) as of 2026-08-24.
+Cloud Binance blocked (HTTP 451 geo-block); VPS required for crypto execution.
+
+### Result
+Sells: 0/3 | Scales: 0 | Stops tightened: 0 | Held: 1 (AAPL anchor, no entry price)
