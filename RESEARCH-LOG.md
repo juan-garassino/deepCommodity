@@ -605,3 +605,49 @@ Watchlist: ETH strong anchor candidate for VPS execution. NEAR leading 24h mover
 ## 2026-08-24 12:35 UTC — Decision Pass 2026-08-24 12:33 UTC — 0 trades (Binance geo-blocked)
 
 EQUITIES_OPEN=no (Monday 12:33 UTC). Crypto-only. TRADING_MODE=paper. Six-stream: News OK (1 source-type, no catalysts); On-chain FAILED (Binance 451 geo-block); Corr FAILED (yfinance); FedWatch FAILED (yfinance). Source-types: 1 — all themes DORMANT (need >=2). 10th consecutive cloud 0-trade pass. Prices: BTC $78,552 (+23% 7d), ETH $2,496 (+30.8% 7d), SOL $95.59 (+26.4% 7d). Forecasts: BTC long 1.0, ETH long 1.0, SOL long 1.0. Anchor: ETH/BTC pass gate, risk_check BLOCKED (Binance testnet 451 unreachable). Gems: CASHCAT pump/no-citation rejected; STX +100% 7d Bitcoin L2 watchlisted; rank_smallcaps returned empty. Result: 0 new positions. VPS execution required for crypto.
+
+## 2026-08-25 08:23 UTC — decision-2026-08-25-08h
+
+## Decision Pass — 2026-08-25 08:21 UTC
+
+EQUITIES_OPEN=no (Tuesday 08:21 UTC). Crypto-only. TRADING_MODE=paper | BINANCE_TESTNET=true.
+
+Six-stream: News OK (OpenAI) — BTC $79,993 +3.72%/+24.1%7d approaching $80K; ETH $2,487 +1.74%/+30.5%7d; SOL $100.47 +7.17%/+32%7d (first $100 close); SHIB +3.72% (441% burn rate spike + Japan listing); AAVE -8.7% leveraged deleveraging; ZRO -10% bridge exploit; SPY -0.29%/QQQ -0.99% equities cautious. On-chain FAILED (Binance 451 geo-block). Corr FAILED (yfinance). FedWatch FAILED (yfinance). Source-types: 1 — all themes DORMANT (need >=2).
+
+Prices: BTC $79,993 +3.72%/+24.1%7d | ETH $2,487 +1.74%/+30.5%7d | SOL $100.47 +7.17%/+32%7d | LINK $11.64 +1.94%/+22.9%7d | AVAX $7.56 +1.61%/+18.7%7d
+
+Forecasts (rule-based): BTC long 1.00 | ETH long 1.00 | SOL long 1.00 | AVAX long 1.00 | LINK long 1.00 | NEAR flat 0.40 | ATOM flat 0.40
+
+Gems: CASHCAT pump/no-description REJECTED; NPC meme REJECTED; META token-ID-mismatch REJECTED; CVX no-news-citation REJECTED.
+
+Bucket decisions — ANCHOR: BTC/ETH conf=1.00 pass gate; risk_check BLOCKED (Binance testnet binance.vision unreachable, fail-closed). THEME: 0 active (1 source-type). GEM: 0. Total: 0 new positions.
+
+Watchlist: BTC ~$80K milestone; ETH +30.5%7d; SOL $100 breakout; SHIB burn spike needs on-chain for theme activation. Avoid: ZRO (exploit), AAVE (deleveraging). 11th consecutive cloud 0-trade pass; VPS required for crypto.
+
+## 2026-08-28 03:10 UTC — position-mgmt 2026-08-28 09:00 UTC
+
+## Position-Mgmt Run — 2026-08-28 09:00 UTC
+
+### Drawdown Check
+check_drawdown.py: NAV unavailable (Binance testnet geo-blocked from cloud egress, HTTP 451). armed=false. No KILL_SWITCH armed.
+
+### Open Position Reconciliation
+Parsed TRADE-LOG.md for filled buys without matching filled sells:
+- AAPL 1.0 (paper) | entry 2026-05-09 | fill_price: not recorded | reason: dc-smoke-paper end-to-end
+No crypto positions found in trade log.
+
+### Active Theme State (last 3 research entries)
+1. 2026-08-25 08:21 UTC: all themes DORMANT (1 source-type; require >=2)
+2. 2026-08-24 12:33 UTC: all themes DORMANT (1 source-type; require >=2)
+3. 2026-08-24 04:21 UTC: all themes DORMANT (1 source-type; require >=2)
+Theme decay not applicable — AAPL is anchor bucket, not theme.
+
+### Decision Tree
+- AAPL (equity anchor, smoke-test artifact): Entry price absent. Stop (-8%) and TP (+20%) uncomputable. Bucket=anchor: hold unless stop/TP fires. Market not open (09:00 UTC). No action.
+- Crypto: 0 open positions.
+
+### Market Context (from 2026-08-25 decision pass)
+BTC $79,993 +24.1%/7d at $80K cycle high. ETH $2,487 +30.5%/7d. SOL $100.47 +32%/7d. Broad rally; anchors all LONG 1.0 but Binance testnet unreachable from cloud — VPS required for execution.
+
+### Result
+Sells: 0/3 | Scales: 0 | Stops tightened: 0 | Held: 1 (AAPL anchor, no entry price)
