@@ -624,30 +624,20 @@ Bucket decisions — ANCHOR: BTC/ETH conf=1.00 pass gate; risk_check BLOCKED (Bi
 
 Watchlist: BTC ~$80K milestone; ETH +30.5%7d; SOL $100 breakout; SHIB burn spike needs on-chain for theme activation. Avoid: ZRO (exploit), AAVE (deleveraging). 11th consecutive cloud 0-trade pass; VPS required for crypto.
 
-## 2026-08-28 03:10 UTC — position-mgmt 2026-08-28 09:00 UTC
+## 2026-08-29 20:24 UTC — decision-2026-08-29-20h
 
-## Position-Mgmt Run — 2026-08-28 09:00 UTC
+## Decision Pass — 2026-08-29 20:22 UTC
 
-### Drawdown Check
-check_drawdown.py: NAV unavailable (Binance testnet geo-blocked from cloud egress, HTTP 451). armed=false. No KILL_SWITCH armed.
+EQUITIES_OPEN=no (Saturday 20:00 UTC). Crypto-only. TRADING_MODE=paper | BINANCE_TESTNET=true.
 
-### Open Position Reconciliation
-Parsed TRADE-LOG.md for filled buys without matching filled sells:
-- AAPL 1.0 (paper) | entry 2026-05-09 | fill_price: not recorded | reason: dc-smoke-paper end-to-end
-No crypto positions found in trade log.
+Six-stream: News OK (OpenAI) — ETH ETF 10th consecutive inflow day ($102.1M), BTC ETF $201.8M outflow (ends 9-day streak), SOL/XRP ETF inflows, NVIDIA Q2 revenue $96.2B +106% YoY (record). On-chain FAILED (Binance 451 geo-block). Corr FAILED (insufficient data). FedWatch FAILED (yfinance). Source-types: 1 — all themes DORMANT (need >=2).
 
-### Active Theme State (last 3 research entries)
-1. 2026-08-25 08:21 UTC: all themes DORMANT (1 source-type; require >=2)
-2. 2026-08-24 12:33 UTC: all themes DORMANT (1 source-type; require >=2)
-3. 2026-08-24 04:21 UTC: all themes DORMANT (1 source-type; require >=2)
-Theme decay not applicable — AAPL is anchor bucket, not theme.
+Prices (CoinGecko 20:22 UTC): BTC $78,255 +1.0%/+1.2%7d | ETH $2,457 +1.0%/+1.1%7d | SOL $105.37 +1.8%/+11.6%7d | LINK $11.48 +0.9%/-2.2%7d | AVAX $7.33 +0.8%/-3.1%7d.
 
-### Decision Tree
-- AAPL (equity anchor, smoke-test artifact): Entry price absent. Stop (-8%) and TP (+20%) uncomputable. Bucket=anchor: hold unless stop/TP fires. Market not open (09:00 UTC). No action.
-- Crypto: 0 open positions.
+Forecasts (rule-based): BTC flat 0.40 | ETH flat 0.40 | SOL long 1.00.
 
-### Market Context (from 2026-08-25 decision pass)
-BTC $79,993 +24.1%/7d at $80K cycle high. ETH $2,487 +30.5%/7d. SOL $100.47 +32%/7d. Broad rally; anchors all LONG 1.0 but Binance testnet unreachable from cloud — VPS required for execution.
+Gems: rank_smallcaps empty. PONS +450%7d (pump, no desc), CASHCAT +91%7d (pump), PROM +149%7d (ZkEVM L2, no citation), AKE -13.3%/24h, ANSEM (meme) — all REJECTED.
 
-### Result
-Sells: 0/3 | Scales: 0 | Stops tightened: 0 | Held: 1 (AAPL anchor, no entry price)
+Bucket decisions: ANCHOR BTC/ETH conf=0.40<0.55 FAIL. THEME dormant (1 source-type). GEM no qualified candidates. risk_check ETH: BLOCKED (Binance testnet binance.vision unreachable, fail-closed). Total: 0 new positions.
+
+Watchlist: ETH 10-day institutional inflow streak = structural catalyst (VPS anchor execution). SOL long 1.00 conf needs 2nd source-type. BTC near-term mixed (ETF outflow). 12th consecutive cloud 0-trade pass. VPS required for crypto.
