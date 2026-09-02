@@ -659,27 +659,41 @@ ANCHOR: BTC/ETH conf=0.40<0.55 FAIL; Equities conf=0.00 FAIL. THEME: 1 source-ty
 ### Watchlist
 NVDA +5.94%7d strongest anchor — needs news catalyst for conf>=0.55 via rule-based. BTC $79K consolidation. ETH post-rally stall. SKR/HNT extreme pump-dump profile — avoid.
 
-## 2026-09-02 03:09 UTC — position-mgmt 2026-09-02 09:00 UTC
+## 2026-09-02 12:34 UTC — decision-2026-09-02-12h
 
-## Position-Mgmt Run — 2026-09-02 09:00 UTC
+## Decision Pass — 2026-09-02 12:33 UTC
 
-### Drawdown Check
-check_drawdown.py: NAV unavailable (Binance testnet geo-blocked from cloud egress). armed=false. No KILL_SWITCH armed. Orders independently fail-closed.
+EQUITIES_OPEN=no (Wednesday 12:33 UTC, outside 13-21 window). Crypto-only. TRADING_MODE=paper | BINANCE_TESTNET=true.
 
-### Open Position Reconciliation
-Parsed TRADE-LOG.md — 1 open position:
-- AAPL 1.0 (paper, Alpaca) | entry 2026-05-09 | fill_price: not recorded | reason: dc-smoke-paper end-to-end | bucket: anchor
+### Six-Stream Read
+1. News (OpenAI): WORKING — BTC $76,951 24h=-1.17% 7d=-2.5%; ETH $2,385 24h=-2.65% 7d=-3.6%; Bitcoin ETF outflows -$236.5M on Sep 1 (BlackRock IBIT -$201M); ETH/SOL/XRP ETF small inflows +$10-14M each; S&P 500 triple-threat (oil, yields, hawkish Fed); sector rotation (energy XLE +1.3%, tech XLK -1.5%, biotech XBI +0.57%). Cautious risk sentiment.
+2. On-chain (Binance): FAILED — 451 geo-block (persistent; VPS required)
+3. Cross-asset regime: FAILED — insufficient data
+4. FedWatch: FAILED — yfinance unreachable
+Active source-types: NEWS ONLY = 1. Themes require >=2 distinct source-types -> all DORMANT.
 
-No crypto positions found in trade log.
+### Crypto Prices (CoinGecko 12:33 UTC)
+BTC $76,951 -1.17%/24h -2.5%/7d | ETH $2,385 -2.65%/24h -3.6%/7d | SOL $98.28 -3.79%/24h +0.5%/7d | LINK $11.06 -3.22%/24h -3.8%/7d | ATOM $1.45 -2.18%/24h -7.8%/7d | AVAX $7.13 -1.97%/24h -3.9%/7d | NEAR $1.85 -6.08%/24h -0.6%/7d
 
-### Active Theme State (last 3 research entries)
-1. 2026-08-31: 1 source-type — all themes DORMANT
-2. 2026-08-25: 1 source-type — all themes DORMANT
-3. 2026-08-24: 1 source-type — all themes DORMANT
+### Forecasts (rule-based)
+BTC short 0.625 | ETH short 0.68 | SOL flat 0.40 | LINK short 0.69 | ATOM short 0.89 | AVAX short 0.695 | NEAR flat 0.40
 
-### Decision Tree
-- AAPL (anchor): Entry price not recorded → stop (-8%) and TP (+20%) not computable. Bucket=anchor; theme-decay rule N/A (anchors never close on theme decay). US equities open window (13:00-21:00 UTC) not yet reached. No action.
-- Crypto: 0 open positions. Nothing to reconcile.
+### Hidden Gems
+scan_hidden_gems.py FAILED — CoinGecko 429 rate limit (prior calls exhausted quota this pass).
 
-### Result
-Sells: 0/3 | Scales: 0 | Stops tightened: 0 | Held: 1 (AAPL anchor, smoke-test artifact, no entry price)
+### Bucket Decisions
+ANCHOR: BTC direction=short (not long); ETH direction=short (not long). Gate requires long conf>=0.55. 0 trades.
+THEME: 1 source-type < 2 required. All themes DORMANT. 0 trades.
+GEM: Scan FAILED (CoinGecko rate limit). 0 trades.
+Total: 0 new positions. Capital preserved.
+
+### Market Context
+Bitcoin ETF outflows -$236.5M on Sep 1; BlackRock IBIT -$201M largest single-day outflow in recent cycle. ETH/SOL/XRP ETFs small inflows indicating rotation not full exit. BTC down from ~$78.5K peak (Aug 24) to $76.9K today (-2%). Macro headwinds: rising oil, yields, hawkish Fed. SOL showing relative strength (7d +0.5%). S&P 500 sector rotation (energy +1.3%, tech -1.5%).
+
+### Watchlist
+SOL $98.28 flat signal (7d +0.5%): relative strength. BTC/ETH: wait for bounce. NEAR: 6% 24h drop, watch mean reversion. ETH Fidelity staking ETF structural catalyst still active if 2nd source-type activates.
+
+### Infrastructure Issues (persistent)
+- Binance 451 geo-block from cloud (15+ passes). VPS dc-trader required for crypto.
+- CoinGecko 429 rate limiting when multiple calls per pass.
+- yfinance unreachable (regime + FedWatch failing).
