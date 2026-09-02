@@ -624,31 +624,62 @@ Bucket decisions — ANCHOR: BTC/ETH conf=1.00 pass gate; risk_check BLOCKED (Bi
 
 Watchlist: BTC ~$80K milestone; ETH +30.5%7d; SOL $100 breakout; SHIB burn spike needs on-chain for theme activation. Avoid: ZRO (exploit), AAVE (deleveraging). 11th consecutive cloud 0-trade pass; VPS required for crypto.
 
-## 2026-08-31 00:23 UTC — decision-2026-08-31-00h
+## 2026-08-31 20:23 UTC — decision-2026-08-31-20h
 
-## Decision Pass — 2026-08-31 00:22 UTC
+## Decision Pass — 2026-08-31T20:23:32Z
 
-EQUITIES_OPEN=no (Monday 00:xx UTC). Crypto-only. TRADING_MODE=paper | BINANCE_TESTNET=true. DC_HALT=false. No KILL_SWITCH.
+EQUITIES_OPEN=yes (Monday 20:20 UTC). Crypto+Equities. TRADING_MODE=paper.
 
-Six-stream: News WORKING (1 source-type); On-chain FAILED (451 geo-block); Corr FAILED (insufficient data); FedWatch FAILED (yfinance unreachable). 1 source-type total — themes require >=2 — all themes DORMANT.
+### Six-Stream Read
+1. News (OpenAI): OK — no specific catalysts in last 4h; zero notable market-moving news across crypto/equities/macro.
+2. On-chain (Binance): FAILED — 451 geo-block (persistent; VPS required).
+3. Cross-asset regime: FAILED — insufficient data.
+4. FedWatch: FAILED — yfinance unreachable.
+5. Insider: FAILED — timeout.
+6. Filings: FAILED — timeout.
+7. Earnings: OK — 0 upcoming in 7d.
+Active source-types: NEWS only = 1. Themes require >=2 → all DORMANT.
 
-**Crypto Prices (SIGNIFICANT RALLY vs Aug 14 pass):**
-BTC $77,859 24h=-0.46% 7d=+0.1% (+22.8% since Aug 14)
-ETH $2,427 24h=-1.41% 7d=-1.5% (+28.9% since Aug 14)
-SOL $102.11 24h=-3.16% 7d=+6.6% (+34.5% since Aug 14)
-LINK $11.18 | ATOM $1.46 | AVAX $7.14 | NEAR $1.84
+### Crypto Prices (CoinGecko 20:22 UTC)
+BTC $79,122 +0.27%/0.0%7d | ETH $2,485 -0.82%/+0.3%7d (post-rally stall) | SOL $104.21 -1.47%/+8.1%7d | AVAX $7.23 -2.48%/-4.2%7d | LINK $11.43 -1.47%/-1.5%7d | NEAR $1.89 -0.74%/-4.1%7d
 
-**Forecasts (rule-based):** BTC flat 0.40 | ETH flat 0.40 | SOL flat 0.40 | LINK short 0.665 | ATOM short 0.96 | AVAX short 0.83 | NEAR short 0.995
+### Equity Prices (Alpaca 20:22 UTC)
+SPY $766.87 +0.45%7d | QQQ $716.69 +1.46%7d | AAPL $317.14 +2.18%7d | MSFT $506.95 +4.03%7d | NVDA $220.86 +5.94%7d (strongest anchor) | GOOGL $339.17 -2.56%7d | META $572.49 +2.40%7d | AMZN $259.76 -0.87%7d
 
-**News highlights:** BTC ETF inflows +1,761 BTC (institutional demand); ETH ETF outflows -2,350 ETH (divergence); Fed credibility concerns; risk-off equities (SPY -0.23%, QQQ -0.66%).
+### Forecasts (rule-based)
+Crypto: BTC flat 0.40 | ETH flat 0.40 | SOL flat 0.40 | AVAX short 0.71 | NEAR short 0.71.
+Equities: conf=0.00 all (rule-based lacks 24h change from fetch_equities format).
 
-**Gems (scan_hidden_gems):** PONS +902%/30d | CASHCAT +398%/30d | HNT +310%/30d +96%/24h (Helium DePIN spike, watch for catalyst) | PROM +292%/30d (ZkEVM L2) | SKR +261%/30d. rank_smallcaps returned empty (all filtered out).
+### Gem Scan
+PONS +1582%/30d pump no-desc REJECTED. CASHCAT +429%/30d pump REJECTED. SKR +319%/30d extreme-pump no-news REJECTED. HNT +262%/30d but -26.4%/24h selloff no-news REJECTED. NPC meme REJECTED.
 
-**Bucket decisions:**
-ANCHOR: BTC 0.40<0.55 FAIL | ETH 0.40<0.55 FAIL → 0 trades
-THEME: 0 active (1 source-type) → 0 trades
-GEM: rank_smallcaps empty; pump profiles rejected; broker BLOCKED (testnet unreachable) → 0 trades
+### Bucket Decisions
+ANCHOR: BTC/ETH conf=0.40<0.55 FAIL; Equities conf=0.00 FAIL. THEME: 1 source-type<2 DORMANT. GEM: 0 news citations BLOCKED. Total: 0 new positions. 12th consecutive cloud 0-trade pass; VPS required for crypto.
 
-**Result:** 0 new positions. Broad rally (BTC +23%, ETH +29%, SOL +35% since Aug 14) not captured — cloud Binance execution blocked (451). VPS required for crypto execution.
+### Watchlist
+NVDA +5.94%7d strongest anchor — needs news catalyst for conf>=0.55 via rule-based. BTC $79K consolidation. ETH post-rally stall. SKR/HNT extreme pump-dump profile — avoid.
 
-**Watchlist:** HNT (Helium) +96%/24h anomaly — verify catalyst; PROM ZkEVM L2 sustained momentum; BTC/ETH anchors could trigger if 24h momentum turns positive next pass.
+## 2026-09-02 03:09 UTC — position-mgmt 2026-09-02 09:00 UTC
+
+## Position-Mgmt Run — 2026-09-02 09:00 UTC
+
+### Drawdown Check
+check_drawdown.py: NAV unavailable (Binance testnet geo-blocked from cloud egress). armed=false. No KILL_SWITCH armed. Orders independently fail-closed.
+
+### Open Position Reconciliation
+Parsed TRADE-LOG.md — 1 open position:
+- AAPL 1.0 (paper, Alpaca) | entry 2026-05-09 | fill_price: not recorded | reason: dc-smoke-paper end-to-end | bucket: anchor
+
+No crypto positions found in trade log.
+
+### Active Theme State (last 3 research entries)
+1. 2026-08-31: 1 source-type — all themes DORMANT
+2. 2026-08-25: 1 source-type — all themes DORMANT
+3. 2026-08-24: 1 source-type — all themes DORMANT
+
+### Decision Tree
+- AAPL (anchor): Entry price not recorded → stop (-8%) and TP (+20%) not computable. Bucket=anchor; theme-decay rule N/A (anchors never close on theme decay). US equities open window (13:00-21:00 UTC) not yet reached. No action.
+- Crypto: 0 open positions. Nothing to reconcile.
+
+### Result
+Sells: 0/3 | Scales: 0 | Stops tightened: 0 | Held: 1 (AAPL anchor, smoke-test artifact, no entry price)
